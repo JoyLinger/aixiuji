@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <title>爱秀·季</title>
+  <!-- jquery插件 -->
+  <script src="/plugins/jquery-3.6.0.min.js" type="text/javascript"></script>
+  <!-- DataTables表格样式 -->
+  <script src="/plugins/datatables.min.js" type="text/javascript"></script>
+  <link href="/plugins/datatables.min.css" rel="stylesheet">
+  <!-- 自定义表格插件属性 -->
+  <script src="/js/datatable.js" type="text/javascript"></script>
+  <link href="/css/table.css" rel="stylesheet">
+  <!-- bootstrap插件 -->
+  <script src="/plugins/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+  <link href="/plugins/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 通用样式 -->
+  <link href="/css/general.css" rel="stylesheet">
+  <!-- 确认函数 -->
+  <script src="/js/verify.js" type="text/javascript"></script>
+</head>
+<body>
+<table class="display" id="dataTable" rules="all" style="width:100%">
+  <thead>
+  <tr>
+    <th>卡号</th>
+    <th>卡类型</th>
+    <th>卡余额</th>
+    <th>开卡日期</th>
+    <th>初始金额</th>
+    <th>剩余赠送项目</th>
+    <th>账单</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="card : ${cards}">
+    <td th:text="${card?.id}"></td>
+    <td th:text="${card?.parseType()}"></td>
+    <td th:text="${card?.balance}"></td>
+    <td th:text="${card?.date}"></td>
+    <td th:text="${card?.amount}"></td>
+    <td th:text="${card?.bonuses2String()}"></td>
+    <td>
+      <details>
+        <summary
+                th:utext="${'共' + card?.bills.size() + '笔账单<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/showCardBills?cid=' + card?.id + '&quot;>查看详情</a>'}"></summary>
+        <div th:each="bill : ${card?.bills}">
+          <data th:text="${bill.summary()}" th:title="${bill.detail()}"></data>
+        </div>
+      </details>
+    </td>
+    <td>
+      <div class="nav-item dropdown">
+        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdown01">更多操作</a>
+        <ul aria-labelledby="dropdown01" class="dropdown-menu">
+          <li><a class="dropdown-item" th:href="@{/filter/toUpdateCard(cid=${card.id})}">修改卡信息</a></li>
+          <li><a class="dropdown-item" th:href="@{/filter/checkCardBalance(cardId=${card.id})}">检查卡余额</a></li>
+          <li><a class="dropdown-item" th:href="@{/filter/deleteCard(cardId=${card.id},vipId=${card.vip.uid})}" onclick="return verify('删除会员卡')">删除</a></li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <title>爱秀·季</title>
+  <!-- jquery插件 -->
+  <script src="/plugins/jquery-3.6.0.min.js" type="text/javascript"></script>
+  <!-- DataTables表格样式 -->
+  <script src="/plugins/datatables.min.js" type="text/javascript"></script>
+  <link href="/plugins/datatables.min.css" rel="stylesheet">
+  <!-- 自定义表格插件属性 -->
+  <script src="/js/datatable.js" type="text/javascript"></script>
+  <link href="/css/table.css" rel="stylesheet">
+  <!-- bootstrap插件 -->
+  <script src="/plugins/bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+  <link href="/plugins/bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 通用样式 -->
+  <link href="/css/general.css" rel="stylesheet">
+</head>
+<body>
+<table class="display" id="dataTable" rules="all" style="width:100%">
+  <thead>
+  <tr>
+    <th>账单号</th>
+    <th>账单日期</th>
+    <th>操作</th>
+    <th>美发项目</th>
+    <th>金额</th>
+    <th>支付方式</th>
+    <th>客户类型</th>
+    <th>备注</th>
+    <th>会员信息</th>
+    <th>会员卡</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="content" th:each="bill : ${bills}">
+    <td th:text="${bill?.id}"></td>
+    <td th:text="${bill?.getDay()}" th:title="${bill?.date}"></td>
+    <td th:each="operation:${session.operations}" th:if="${operation.value_id}==${bill.operation}"
+        th:text="${operation.name}" th:value="${operation.value_id}"></td>
+    <td th:each="project:${session.projects}" th:if="${project.value_id}==${bill.project}"
+        th:text="${project.name}" th:value="${project.value_id}"></td>
+    <td th:text="${bill?.pay_amount}"></td>
+    <td th:each="payMethod:${session.payMethods}" th:if="${payMethod.value_id}==${bill.pay_method}"
+        th:text="${payMethod.name}" th:value="${payMethod.value_id}"></td>
+    <td th:each="role:${session.roles}" th:if="${role.value_id}==${bill.role}" th:text="${role.name}"
+        th:value="${role.value_id}"></td>
+    <td th:text="${bill?.omitNote()}" th:title="${bill?.note}"></td>
+    <td>
+      <div th:switch="${bill?.role}">
+        <data th:case="1">
+          <data th:text="${bill?.card?.vip?.name}" th:title="${bill?.card?.vip?.detail()}"></data>
+          <!--          <details>-->
+          <!--            <summary th:text="${bill?.card?.vip?.name}" th:title="${bill?.card?.vip?.detail()}"></summary>-->
+          <!--            <data th:text="${bill?.card?.vip?.detail()}"></data>-->
+          <!--          </details>-->
+        </data>
+        <data th:case="2">-</data>
+      </div>
+    </td>
+    <td>
+      <div th:switch="${bill?.role}">
+        <data th:case="1">
+          <data th:text="${bill?.card?.parseType()}" th:title="${bill?.card?.detail()}"></data>
+          <!--          <details>-->
+          <!--            <summary th:text="${bill?.card?.parseType()}" th:title="${bill?.card?.detail()}"></summary>-->
+          <!--            <data th:text="${bill?.card?.detail()}"></data>-->
+          <!--          </details>-->
+        </data>
+        <data th:case="2">-</data>
+      </div>
+    </td>
+    <td>
+      <div class="nav-item dropdown">
+        <a aria-expanded="false" class="nav-link dropdown-toggle no-padding" data-bs-toggle="dropdown" href="#"
+           id="dropdown01">更多操作</a>
+        <ul aria-labelledby="dropdown01" class="dropdown-menu">
+          <li><a class="dropdown-item" th:href="@{/filter/toUpdateBill(billId=${bill.id})}">修改账单信息</a></li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+  <!--    <tfoot>-->
+  <!--      <tr>-->
+  <!--        <th>账单号</th>-->
+  <!--        <th>账单日期</th>-->
+  <!--        <th>操作</th>-->
+  <!--        <th>美发项目</th>-->
+  <!--        <th>金额</th>-->
+  <!--        <th>支付方式</th>-->
+  <!--        <th>客户类型</th>-->
+  <!--        <th>会员信息</th>-->
+  <!--        <th>会员卡</th>-->
+  <!--      </tr>-->
+  <!--    </tfoot>-->
+</table>
+</body>
+</html>

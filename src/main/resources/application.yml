@@ -1,0 +1,53 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      # session 过期时间, 为了快速看到过期效果,我设置的30秒, 通常是设置为30分钟
+      timeout: 1800s
+#  max-http-header-size: 102400
+
+spring:
+  resources:
+    chain:
+      cache: false
+    # 用于描述静态资源的存放位置。多个路径（逗号隔开）
+    static-locations: classpath:/static/, classpath:/templates/
+  mvc:
+    # 用于阐述HTTP请求地址
+    static-path-pattern: /**
+  # mysql数据库
+  datasource:
+    url: jdbc:mysql://localhost:3306/aixiuji?characterEncoding=utf8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # JPA配置
+  jpa:
+    database: MySQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: utf-8
+  session:
+    # 设置使用jdbc的方式存储session
+    store-type: jdbc
+    jdbc:
+      # Database schema 初始化模式
+      initialize-schema: always
+      # datasource schema:spring会通过设置的schema-mysql.sql进行自动创建保存会话的表名
+      schema: classpath:sql/schema-mysql.sql
+      # 存放session的表名, 此表无须手动创建, spring会自己来维护session的添加和移除
+      table-name: SPRING_SESSION
+
+#logging:
+#  config: classpath:logback-spring.xml
+#  path: E:/logs
+#  file: aixiuji.log
+#  level:
+#    root: info #日志级别. root表示所有包，也可以单独配置具体包 fatal error warn info debug trace off
+

@@ -1,0 +1,15 @@
+table {
+vertical-align: middle;
+text-align: center;
+}
+
+thead {
+background-color: #A9A9F5;
+}
+
+/*鼠标经过时的改变颜色*/
+tbody tr:hover {
+background-color: #088A85;
+}
+
+tbody th { white-space: nowrap; background-color: #ffd; }
