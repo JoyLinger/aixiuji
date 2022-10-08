@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChargeRepository extends JpaRepository<Vip, Long> {
+public interface ChargeRepository extends JpaRepository<Vip, Integer> {
   /**
    * 查询所有vip
    * 这里@Query中from后面要写类名（区分大小写），而不是表名

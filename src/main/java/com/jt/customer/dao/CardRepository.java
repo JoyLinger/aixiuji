@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CardRepository extends JpaRepository<Card, Long> {
+public interface CardRepository extends JpaRepository<Card, Integer> {
 
   @Modifying
   @Query(value = "insert into Card(id,date,type,amount,balance,active,uid) values(null,?1,?2,?3,?4,?5,?6)", nativeQuery = true)
@@ -89,5 +89,16 @@ public interface CardRepository extends JpaRepository<Card, Long> {
   @Modifying
   @Query(value = "UPDATE card SET active=false WHERE id=?1", nativeQuery = true)
   void deleteCardById(int cid);
+
+  @Modifying
+  @Query(value = "ALTER TABLE card AUTO_INCREMENT = 1", nativeQuery = true)
+  void resetAutoIncrement();
+
+  @Modifying
+  @Query(value = "ALTER TABLE bonus AUTO_INCREMENT = 1", nativeQuery = true)
+  void resetBonusAutoIncrement();
+
+  @Query(value = "select distinct c.id from Card c where uid=:uid and active = true order by c.id desc", nativeQuery = true)
+  List<Integer> getCardIdsByUid(int uid);
 
 }

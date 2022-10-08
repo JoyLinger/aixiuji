@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BillRepository extends JpaRepository<Bill, Long> {
+public interface BillRepository extends JpaRepository<Bill, Integer> {
   //收入统计
   String INCOME_STATS_SQL = "select\n" +
           "date_format(bill0_.date, ?1) as date, \n" +
@@ -106,10 +106,10 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
   List<Bill> getBillsAfterDate(String startDate);
 
   @Query(value = "select sum(pay_amount),count(pay_amount) from bill where pay_method<>4 and date>=?1 and date<?2", nativeQuery = true)
-  long incomeStats(String startDate, String endDate);
+  int incomeStats(String startDate, String endDate);
 
   @Query(value = "select sum(pay_amount),count(pay_amount) from bill where pay_method<>4", nativeQuery = true)
-  long incomeStats();
+  int incomeStats();
 
   /**
    * 按月统计收入
@@ -146,7 +146,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
    * @return 总充值金额
    */
   @Query(value = "select IFNULL(sum(pay_amount),0) from bill where cid=?1 and operation=1", nativeQuery = true)
-  long getTotalChargeByCardId(int cardId);
+  int getTotalChargeByCardId(int cardId);
 
   /**
    * 获取会员卡总消费金额
@@ -155,8 +155,16 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
    * @return 总消费金额
    */
   @Query(value = "select IFNULL(sum(pay_amount),0) from bill where cid=?1 and operation=2 and pay_method=4", nativeQuery = true)
-  long getTotalPayByCardId(int cardId);
+  int getTotalPayByCardId(int cardId);
 
   @Query(value = INCOME_STATS_SQL, nativeQuery = true)
   List<IncomeInterface> incomeStats(String timeFormat);
+
+  @Modifying
+  @Query(value = "DELETE FROM bill WHERE cid=?1", nativeQuery = true)
+  void deleteBillsByCid(int cid);
+
+  @Modifying
+  @Query(value = "ALTER TABLE bill AUTO_INCREMENT = 1", nativeQuery = true)
+  void resetAutoIncrement();
 }

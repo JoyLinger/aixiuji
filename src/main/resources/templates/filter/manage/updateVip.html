@@ -19,44 +19,25 @@
 </head>
 <body>
 <h1 style="text-align: center">修改会员信息</h1>
-<table class="display" id="dataTable" rules="all" style="width:100%">
-  <thead>
-  <tr>
-    <th>客户号</th>
-    <th>客户姓名</th>
-    <th>手机号</th>
-    <th>会员卡</th>
-    <th>开户日期</th>
-    <th>备注</th>
-    <th>操作</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td><input name="id" th:text="${vip?.uid}"></td>
-    <td th:text="${vip?.name}"></td>
-    <td th:text="${vip?.tel}"></td>
-    <td>
-      <details>
-        <summary
-                th:utext="${'共' + vip?.cards.size() + '张会员卡<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/manage/showVipCards?uid=' + vip?.uid + '&quot;>查看详情</a>'}"></summary>
-        <div th:each="card : ${vip?.cards}">
-          <data th:text="${card.summary()}" th:title="${card.detailBonus()}"></data>
-        </div>
-      </details>
-    </td>
-    <td th:text="${vip?.date}"></td>
-    <td th:text="${vip?.remark}"></td>
-    <td>
-      <div class="nav-item dropdown">
-        <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdown01">更多操作</a>
-        <ul aria-labelledby="dropdown01" class="dropdown-menu">
-          <li><a class="dropdown-item" th:href="@{/filter/manage/updateVip(vip=vip)}">修改</a></li>
-        </ul>
-      </div>
-    </td>
-  </tr>
-  </tbody>
-</table>
+<div class="divForm">
+  <form action="/filter/updateVip" method="post">
+    <input name="vid" th:value="${vip.uid}" type="hidden"/>
+    <div class="col-md-3">
+      <label class="form-label" for="name">客户姓名</label>
+      <input class="form-control" id="name" name="name" th:value="${vip.name}" type="text">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="tel">手机号</label>
+      <input class="form-control" id="tel" name="tel" th:value="${vip.tel}" type="text">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="remark">备注</label>
+      <input class="form-control" id="remark" name="remark" th:value="${vip.remark}" type="text">
+    </div>
+    <div class="col-12">
+      <button class="btn btn-primary btn-lg" type="submit">确认修改</button>
+    </div>
+  </form>
+</div>
 </body>
 </html>

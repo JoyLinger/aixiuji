@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ContrastRepository extends CrudRepository<ContrastKey, Long> {
+public interface ContrastRepository extends CrudRepository<ContrastKey, Integer> {
   @Query(value = "SELECT key FROM ContrastKey key")
   List<ContrastKey> getAllContrast();
 
@@ -30,4 +30,8 @@ public interface ContrastRepository extends CrudRepository<ContrastKey, Long> {
   @Modifying
   @Query(value = "DELETE FROM contrast_value WHERE id=?1", nativeQuery = true)
   void deleteContrastValue(int id);
+
+  @Modifying
+  @Query(value = "ALTER TABLE contrast_value AUTO_INCREMENT = 1", nativeQuery = true)
+  void resetAutoIncrement();
 }

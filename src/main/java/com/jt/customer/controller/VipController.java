@@ -1,6 +1,8 @@
 package com.jt.customer.controller;
 
 import com.jt.customer.entity.Vip;
+import com.jt.customer.service.BillService;
+import com.jt.customer.service.CardService;
 import com.jt.customer.service.VipService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,10 @@ public class VipController {
   private final String prefix = "filter/";
   @Autowired
   VipService vipService;
+  @Autowired
+  CardService cardService;
+  @Autowired
+  BillService billService;
 
   /**
    * 会员管理
@@ -113,11 +119,43 @@ public class VipController {
     return prefix + "manage/allVips";
   }
 
-  @RequestMapping("/filter/updateVip")
-  public String updateVip(Integer vid, Model model) {
-    LOG.info("vid={}", vid);
+  @RequestMapping("/filter/toUpdateVip")
+  public String toUpdateVip(Integer vid, Model model) {
+    LOG.info("toUpdateVip(vid={})", vid);
     Vip vip = vipService.getVip(vid);
     model.addAttribute("vip", vip);
     return prefix + "manage/updateVip";
+  }
+
+  @RequestMapping("/filter/updateVip")
+  public String updateVip(Integer vid, String name, String tel, String remark, Model model) {
+    LOG.info("updateVip(vid={},name={},tel={},remark={})", vid,name,tel,remark);
+    vipService.updateVip(vid,name,tel,remark);
+    Vip vip = vipService.getVip(vid);
+    model.addAttribute("vip", vip);
+    List<Vip> vips = new ArrayList<>();
+    vips.add(vip);
+    model.addAttribute("vips", vips);
+    return prefix + "showVips";
+  }
+
+  /**
+   * 删除会员功能
+   * 注意:会员卡和账单需要同步删除
+   * @param vid
+   * @param model
+   * @return
+   */
+  @RequestMapping("/filter/deleteVip")
+  public String deleteVip(Integer vid, Model model) {
+    LOG.info("deleteVip(vid={})", vid);
+    vipService.deleteVipById(vid);
+    List<Integer> cardIds = cardService.deleteCardsByUid(vid);
+    for(int cid: cardIds) {
+      billService.deleteBillsByCid(cid);
+    }
+    List<Vip> vips = vipService.getAllVips();
+    model.addAttribute("vips", vips);
+    return prefix + "manage/allVips";
   }
 }

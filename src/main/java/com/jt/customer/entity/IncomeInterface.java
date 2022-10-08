@@ -6,5 +6,5 @@ public interface IncomeInterface {
   // 收入
   int getIncome();
   // 顾客人数
-  long getPopulation();
+  int getPopulation();
 }

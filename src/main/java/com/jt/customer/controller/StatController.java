@@ -79,32 +79,32 @@ public class StatController {
     yAxisList.add(new ECharts_yAxis("收入","left","元"));
     yAxisList.add(new ECharts_yAxis("顾客人数","right","人"));
     List<EChartsSeries> seriesList = new ArrayList<>();
-    Map<String, List<Long>> seriesMap = new HashMap<>();
+    Map<String, List<Integer>> seriesMap = new HashMap<>();
     for (int i = 0; i < incomes.size(); i++) {
       IncomeInterface income = incomes.get(i);
       String date_x = income.getDate();
-      long income_y1 = income.getIncome();
-      long population_y2 = income.getPopulation();
+      int income_y1 = income.getIncome();
+      int population_y2 = income.getPopulation();
       if (i == 0) {
         // 首次迭代: 直接放入seriesMap
-        List<Long> income_y1_list = new ArrayList<>();
+        List<Integer> income_y1_list = new ArrayList<>();
         income_y1_list.add(income_y1);
         seriesMap.put("收入", income_y1_list);
-        List<Long> population_y2_list = new ArrayList<>();
+        List<Integer> population_y2_list = new ArrayList<>();
         population_y2_list.add(population_y2);
         seriesMap.put("顾客人数", population_y2_list);
       } else {
         // 多次迭代: 更新seriesMap中老的系列值
-        List<Long> income_y1_list = seriesMap.get("收入");
+        List<Integer> income_y1_list = seriesMap.get("收入");
         income_y1_list.add(income_y1);
         seriesMap.put("收入", income_y1_list);
-        List<Long> population_y2_list = seriesMap.get("顾客人数");
+        List<Integer> population_y2_list = seriesMap.get("顾客人数");
         population_y2_list.add(population_y2);
         seriesMap.put("顾客人数", population_y2_list);
       }
       if (!xDataList.contains(date_x)) xDataList.add(date_x);
     }
-    for (Map.Entry<String, List<Long>> entry : seriesMap.entrySet()) {
+    for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
       EChartsSeries series1 = new EChartsSeries(entry.getKey(), entry.getValue());
       if(series1.getName().equals("收入")){
         series1.setyAxisIndex(0);
@@ -158,26 +158,26 @@ public class StatController {
     List<ECharts_yAxis> yAxisList = new ArrayList<>();
     yAxisList.add(new ECharts_yAxis("顾客量","left","人次"));
     List<EChartsSeries> seriesList = new ArrayList<>();
-    Map<String, List<Long>> seriesMap = new HashMap<>();
+    Map<String, List<Integer>> seriesMap = new HashMap<>();
     for (CustomerInterface customer : customers) {
       String legend = StaticContrast.parseRole(customer.getRole());
       String date_x = customer.getDate();
-      long value_y = customer.getTotal();
+      int value_y = customer.getTotal();
       if (!legends.contains(legend)) {
         legends.add(legend);
         // 不同系列: 直接放入seriesList
-        List<Long> values = new ArrayList<>();
+        List<Integer> values = new ArrayList<>();
         values.add(value_y);
         seriesMap.put(legend, values);
       } else {
         // 同一个系列: 更新seriesList中老的系列值
-        List<Long> oldValues = seriesMap.get(legend);
+        List<Integer> oldValues = seriesMap.get(legend);
         oldValues.add(value_y);
         seriesMap.put(legend, oldValues);
       }
       if (!xDataList.contains(date_x)) xDataList.add(date_x);
     }
-    for (Map.Entry<String, List<Long>> entry : seriesMap.entrySet()) {
+    for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
       EChartsSeries series1 = new EChartsSeries(entry.getKey(), entry.getValue());
       seriesList.add(series1);
     }
@@ -212,7 +212,7 @@ public class StatController {
     for(int i=0;i<customers.size();i++) {
       String legend = customers.get(i).parseRole();
       String date_x = customers.get(i).getDate();
-      long value_y = customers.get(i).getTotal();
+      int value_y = customers.get(i).getTotal();
       if(!legends.contains(legend)) legends.add(legend);
       if(!dates.contains(date_x)) dates.add(date_x);
       Line line = new Line();

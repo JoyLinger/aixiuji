@@ -99,7 +99,7 @@
           <td>
             <details open="">
               <summary
-                      th:utext="${'共' + vip?.cards.size() + '张会员卡<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/manage/showVipCards?uid=' + vip?.uid + '&quot;>查看详情</a>'}"></summary>
+                      th:utext="${'共' + vip?.cards.size() + '张<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/manage/showVipCards?uid=' + vip?.uid + '&quot;>查看详情</a>'}"></summary>
               <div th:each="card : ${vip?.cards}" th:title="${'剩余赠送项目:' + card.bonuses2String()}">
                 <input name="cid" th:text="${card?.summary() + ',剩余赠送项目:' + card.bonuses2String()}"
                        th:value="${card?.id}"

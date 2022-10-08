@@ -97,7 +97,7 @@ public class CardController {
     LOG.info("cardId={}", cardId);
     Card card = cardService.getCardById(cardId);
     model.addAttribute("balance", card.getBalance());
-    long calcBalance = cardService.checkBalanceById(cardId);
+    int calcBalance = cardService.checkBalanceById(cardId);
     model.addAttribute("calcBalance", calcBalance);
     model.addAttribute("cardId", cardId);
     return prefix + "manage/checkCardBalance";

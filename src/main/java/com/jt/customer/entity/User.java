@@ -13,7 +13,7 @@ public class User {
   // 账号id,自增主键
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long uid;
+  private Integer uid;
   // 账号名
   private String name;
   // 密码
@@ -23,7 +23,7 @@ public class User {
   // 备注
   private String remark;
 
-  public User(Long uid, String name, String password, String role, String remark) {
+  public User(Integer uid, String name, String password, String role, String remark) {
     this.uid = uid;
     this.name = name;
     this.password = password;
@@ -38,11 +38,11 @@ public class User {
     return "管理员".equals(role);
   }
 
-  public long getUid() {
+  public int getUid() {
     return uid;
   }
 
-  public void setUid(Long uid) {
+  public void setUid(Integer uid) {
     this.uid = uid;
   }
 

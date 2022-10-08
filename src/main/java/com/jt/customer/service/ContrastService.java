@@ -46,6 +46,7 @@ public class ContrastService {
 
   public void deleteContrastValue(int id) {
     contrastRepo.deleteContrastValue(id);
+    contrastRepo.resetAutoIncrement();
   }
 //
 //  public List<Contrast> getAllPayMethods() {

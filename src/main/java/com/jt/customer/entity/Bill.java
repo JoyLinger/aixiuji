@@ -169,7 +169,7 @@ public class Bill {
     this.pay_method = pay_method;
   }
 
-  public long getId() {
+  public int getId() {
     return id;
   }
 

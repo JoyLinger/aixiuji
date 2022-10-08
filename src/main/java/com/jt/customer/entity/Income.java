@@ -35,7 +35,7 @@ public class Income {
     return income;
   }
 
-  public void setIncome(long income) {
+  public void setIncome(int income) {
     this.income = income;
   }
 
@@ -43,7 +43,7 @@ public class Income {
     return sales;
   }
 
-  public void setSales(long sales) {
+  public void setSales(int sales) {
     this.sales = sales;
   }
 }

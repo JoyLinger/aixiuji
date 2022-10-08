@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VipRepository extends JpaRepository<Vip, Long> {
+public interface VipRepository extends JpaRepository<Vip, Integer> {
   String select_all_vip = "select distinct * from Vip v " +
           "left join Card c on v.uid = v.uid and c.active = true " +
           "left join Bill bi on c.id = bi.cid " +
@@ -68,4 +68,15 @@ public interface VipRepository extends JpaRepository<Vip, Long> {
   //  @Query(value = "select distinct * from Vip where uid = :uid", nativeQuery = true)
   @Query(value = "select v from Vip v where v.uid=?1")
   Vip getVipByUid(int uid);
+
+  /**
+   * 根据uid更新会员信息表vip
+   */
+  @Modifying
+  @Query(value = "update Vip set name=:name,tel=:tel,remark=:remark where uid=:uid", nativeQuery = true)
+  void updateVip(Integer uid, String name, String tel, String remark);
+
+  @Modifying
+  @Query(value = "ALTER TABLE vip AUTO_INCREMENT = 1", nativeQuery = true)
+  void resetAutoIncrement();
 }

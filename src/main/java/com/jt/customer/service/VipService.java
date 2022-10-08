@@ -192,4 +192,13 @@ public class VipService {
     LOG.info("vip={}", vip.toString());
     return vip;
   }
+
+  public void updateVip(Integer vid, String name, String tel, String remark) {
+    vipRepo.updateVip(vid,name,tel,remark);
+  }
+
+  public void deleteVipById(Integer vid) {
+    vipRepo.deleteById(vid);
+    vipRepo.resetAutoIncrement();
+  }
 }

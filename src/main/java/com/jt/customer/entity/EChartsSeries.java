@@ -11,15 +11,15 @@ public class EChartsSeries {
   // 柱状图之间的间隔
   private String barGap = "10%";
   // 数据
-  private Long[] data;
+  private Integer[] data;
   // 使用的 y 轴的 index，在单个图表实例中存在多个 y轴的时候有用。
   private int yAxisIndex = 0;
   // 是否平滑曲线显示。
   private double smooth = 0.5;
 
-  public EChartsSeries(String name, List<Long> data) {
+  public EChartsSeries(String name, List<Integer> data) {
     this.name = name;
-    Long[] arr = new Long[data.size()];
+    Integer[] arr = new Integer[data.size()];
     data.toArray(arr);
     this.data = arr;
   }
@@ -48,7 +48,7 @@ public class EChartsSeries {
     return barGap;
   }
 
-  public Long[] getData() {
+  public Integer[] getData() {
     return data;
   }
 
@@ -72,7 +72,7 @@ public class EChartsSeries {
     this.barGap = barGap;
   }
 
-  public void setData(Long[] data) {
+  public void setData(Integer[] data) {
     this.data = data;
   }
 

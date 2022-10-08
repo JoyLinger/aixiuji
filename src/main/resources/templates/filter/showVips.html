@@ -27,6 +27,7 @@
     <th>会员卡</th>
     <th>开户日期</th>
     <th>备注</th>
+    <th>操作</th>
   </tr>
   </thead>
   <tbody>
@@ -37,14 +38,23 @@
     <td>
       <details>
         <summary
-                th:utext="${'共' + vip?.cards.size() + '张会员卡<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/manage/showVipCards?uid=' + vip?.uid + '&quot;>查看详情</a>'}"></summary>
+                th:utext="${'共' + vip?.cards.size() + '张<a class=&quot;btn btn-primary btn-sm&quot; href=&quot;/filter/manage/showVipCards?uid=' + vip?.uid + '&quot;>查看详情</a>'}"></summary>
         <div th:each="card : ${vip?.cards}">
-          <data th:text="${card.summary()}" th:title="${card.detailBonus()}"></data>
+          <data th:text="${card?.summary()}" th:title="${card.detailBonus()}"></data>
         </div>
       </details>
     </td>
     <td th:text="${vip?.date}"></td>
     <td th:text="${vip?.remark}"></td>
+    <td>
+      <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false">更多操作</a>
+        <ul class="dropdown-menu" aria-labelledby="dropdown01">
+          <li><a class="dropdown-item" th:href="@{/filter/toUpdateVip(vid=${vip.uid})}">修改</a></li>
+          <li><a class="dropdown-item" th:href="@{/filter/deleteVip(vid=${vip.uid})}">删除</a></li>
+        </ul>
+      </div>
+    </td>
   </tr>
   </tbody>
 </table>

@@ -145,7 +145,12 @@ public class BillService {
     billRepo.updateBillById(billId, operation, project, pay_amount, pay_method, note);
   }
 
-//  public long incomeStats(String startDate, String endDate){
+  public void deleteBillsByCid(int cid) {
+    billRepo.deleteBillsByCid(cid);
+    billRepo.resetAutoIncrement();
+  }
+
+//  public int incomeStats(String startDate, String endDate){
 //
 //  }
 }

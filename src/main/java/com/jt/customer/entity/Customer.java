@@ -48,7 +48,7 @@ public class Customer {
     return total;
   }
 
-  public void setTotal(long total) {
+  public void setTotal(int total) {
     this.total = total;
   }
 }

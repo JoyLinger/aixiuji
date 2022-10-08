@@ -2,6 +2,7 @@ package com.jt.customer.service;
 
 import com.jt.customer.dao.BillRepository;
 import com.jt.customer.dao.CardRepository;
+import com.jt.customer.dao.ContrastRepository;
 import com.jt.customer.dao.VipRepository;
 import com.jt.customer.entity.Card;
 import com.jt.customer.entity.Vip;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +36,8 @@ public class CardService {
   private BillRepository billRepo;
   @Autowired
   private VipRepository vipRepo;
+  @Autowired
+  private ContrastRepository contrastRepo;
   private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /**
@@ -109,6 +113,7 @@ public class CardService {
 
   public void updateBonusByCardId(int cid, Integer bonus1, Integer bonus1times, Integer bonus2, Integer bonus2times) {
     cardRepo.deleteBonusByCardId(cid);
+    cardRepo.resetBonusAutoIncrement();
     String date = sdf.format(new Date());
     if (bonus1 != null && bonus1times != null) cardRepo.addBonus(bonus1, bonus1times, date, cid);
     if (bonus2 != null && bonus2times != null) cardRepo.addBonus(bonus2, bonus2times, date, cid);
@@ -123,13 +128,13 @@ public class CardService {
   }
 
 //  public void autoUpdateBalanceById(int cardId) {
-//    long balance = billRepo.getTotalChargeByCardId(cardId) - billRepo.getTotalPayByCardId(cardId);
+//    int balance = billRepo.getTotalChargeByCardId(cardId) - billRepo.getTotalPayByCardId(cardId);
 //    LOG.info("卡号:{},实际余额:{}",cardId,balance);
 //    cardRepo.updateBalanceById(cardId, (int) balance);
 //  }
 
-  public long checkBalanceById(int cardId) {
-    long balance = billRepo.getTotalChargeByCardId(cardId) - billRepo.getTotalPayByCardId(cardId);
+  public int checkBalanceById(int cardId) {
+    int balance = billRepo.getTotalChargeByCardId(cardId) - billRepo.getTotalPayByCardId(cardId);
     LOG.info("卡号:{},根据账单计算所得卡余额:{}", cardId, balance);
     return balance;
   }
@@ -141,5 +146,15 @@ public class CardService {
 
   public void deleteCardById(Integer cardId) {
     cardRepo.deleteCardById(cardId);
+    contrastRepo.resetAutoIncrement();
+  }
+
+  public List<Integer> deleteCardsByUid(Integer vid) {
+    List<Integer> cardIds = cardRepo.getCardIdsByUid(vid);
+    for(int cid : cardIds) {
+      cardRepo.deleteCardById(cid);
+    }
+    cardRepo.resetAutoIncrement();
+    return cardIds;
   }
 }
