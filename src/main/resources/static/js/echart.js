@@ -13,9 +13,9 @@ function drawEChart(mySelect, type) {
   }
   console.log( "Handler for 时间范围.click() called." );
   var durPeriod = document.getElementById("durPeriod").value;
-//  var durVal = document.getElementById("durVal").value;
+  var durVal = document.getElementById("durVal").value;
   console.log("durPeriod="+durPeriod);
-//  console.log("durVal="+durVal);
+  console.log("durVal="+durVal);
   var myChart;
   var dom = document.getElementById("myChart");
   myChart = echarts.init(dom);
@@ -30,11 +30,11 @@ function drawEChart(mySelect, type) {
 	//请求地址
     url : "/filter/stats/" + type,
 	//请求参数
-	data: {"durPeriod": durPeriod},
-//	data: {"durPeriod": durPeriod, "durVal": durVal},
+//	data: {"durPeriod": durPeriod, "defaultDays": 30},
+	data: {"durPeriod": durPeriod, "durVal": durVal},
     //返回数据形式为json
     dataType : "json",
-    //请求成功时执行该函数内容，data即为服务器返回的json对象
+    //请求成功时执行该函数内容，jsonObj即为服务器返回的json对象
     success : function(jsonObj) {
       if (jsonObj && typeof jsonObj === 'object') {
         console.log("jsonObj="+jsonObj);

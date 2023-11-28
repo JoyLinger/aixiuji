@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -23,11 +24,27 @@ public class StatController {
   @Autowired
   StatService statService;
 
-  @RequestMapping("/filter/stats/income4month")
-  public String income4month(Model model) {
-    List<Income> incomes = statService.income4month();
+  @RequestMapping("/filter/stats/incomeBase")
+  public String income(Integer durPeriod, Integer durVal, Model model) {
+    // 第三个返回值为java的SimpleDateFormat格式
+    String[] args = formatByDur(durPeriod, durVal);
+    String dateFormat4sql = args[0];
+    String startDay = args[1];
+    List<IncomeInterface> incomes = statIncomes(dateFormat4sql, startDay, durVal);
     model.addAttribute("incomes", incomes);
     return "filter/stats/showIncomes";
+  }
+
+  @RequestMapping("/filter/stats/income4month")
+  public String income4month(Model model) {
+    List<Income> incomes = null;
+    try {
+      incomes = statService.income4month();
+    } catch (IllegalAccessException | InstantiationException e) {
+      e.printStackTrace();
+    }
+    model.addAttribute("incomes", incomes);
+    return "filter/stats/showIncomes4month";
   }
 
   @RequestMapping("/filter/stats/customer4month")
@@ -42,37 +59,54 @@ public class StatController {
     return "filter/stats/incomeChart";
   }
 
+  public String[] formatByDur(Integer durPeriod, Integer durVal){
+    LOG.info("durPeriod={}, defaultDays={}", durPeriod, durVal);
+    LocalDate startDate = LocalDate.now().minusDays(durVal);
+    int startYear = startDate.getYear();
+    int startMonth = startDate.getMonthValue();
+    String dateFormat4sql = "%Y-%m-%d", dateFormat4java = "yyyy-MM-dd", startDay;
+    switch (durPeriod) {
+      case 1:
+        dateFormat4sql = "%Y-%m-%d";
+        dateFormat4java = "yyyy-MM-dd";
+        startDay = startDate.toString();
+        break;
+      case 2:
+        dateFormat4sql = "%Y-%m";
+        dateFormat4java = "yyyy-MM";
+        startDay = startYear + "-" + (startMonth > 9 ? startMonth : "0" + startMonth);
+        break;
+      case 3:
+        dateFormat4sql = "%Y";
+        dateFormat4java = "yyyy";
+        startDay = startYear + "";
+        break;
+      default:
+        LOG.warn("不合法的统计周期:{},默认按天统计", durPeriod);
+        startDay = startDate.toString();
+    }
+    LOG.info("startDay={}", startDay);
+    return new String[]{dateFormat4sql, startDay, dateFormat4java};
+  }
+  public List<IncomeInterface> statIncomes(String format, String startDay, Integer durVal){
+    List<IncomeInterface> incomes = new ArrayList<>();
+    incomes = durVal <= 0 ?
+            statService.statIncomeByDateFormat(format)
+            : statService.statIncomeByDateFormatAndStartDay(format, startDay);
+    return incomes;
+  }
   /**
    * 在使用 @RequestMapping后，返回值通常解析为跳转路径，
    * 但是加上 @ResponseBody 后返回结果不会被解析为跳转路径，而是直接写入 HTTP response body 中。
    * 比如异步获取 json 数据，加上 @ResponseBody 后，会直接返回 json 数据。
    *
    * @param durPeriod 统计周期: 天1/月2/年3
+   * @param durVal 时间范围: 显示最近几天的数据，默认显示最近30天数据，0或负数表示显示全部数据
    * @return 统计结果数据
    */
   @RequestMapping("/filter/stats/income")
   @ResponseBody
-  public JSONObject incomeChart(Integer durPeriod) {
-    LOG.info("durPeriod={}", durPeriod);
-    List<IncomeInterface> incomes = new ArrayList<>();
-    String dateFormat4sql = "%Y-%m-%d", dateFormat4java = "yyyy-MM-dd";
-    switch (durPeriod) {
-      case 1:
-        dateFormat4sql = "%Y-%m-%d";
-        dateFormat4java = "yyyy-MM-dd";
-        break;
-      case 2:
-        dateFormat4sql = "%Y-%m";
-        dateFormat4java = "yyyy-MM";
-        break;
-      case 3:
-        dateFormat4sql = "%Y";
-        dateFormat4java = "yyyy";
-        break;
-      default:
-        LOG.warn("不合法的统计周期:{},默认按天统计", durPeriod);
-    }
-    incomes = statService.statIncomeByDateFormat(dateFormat4sql);
+  public JSONObject incomeChart(Integer durPeriod, Integer durVal) {
     String title = "收入统计";
     List<String> legends = new ArrayList<>();
     legends.add("收入");
@@ -83,6 +117,12 @@ public class StatController {
     yAxisList.add(new ECharts_yAxis("顾客人数","right","人"));
     List<EChartsSeries> seriesList = new ArrayList<>();
     Map<String, List<Integer>> seriesMap = new HashMap<>();
+    // 第三个返回值为java的SimpleDateFormat格式
+    String[] args = formatByDur(durPeriod, durVal);
+    String dateFormat4sql = args[0];
+    String startDay = args[1];
+    String dateFormat4java = args[2];
+    List<IncomeInterface> incomes = statIncomes(dateFormat4sql, startDay, durVal);
     for (int i = 0; i < incomes.size(); i++) {
       IncomeInterface income = incomes.get(i);
       String date_x = income.getDate();
@@ -205,26 +245,19 @@ public class StatController {
    */
   @RequestMapping("/filter/stats/customer")
   @ResponseBody
-  public JSONObject customerChart(Integer durPeriod) {
-    LOG.info("durPeriod={}", durPeriod);
+  public JSONObject customerChart(Integer durPeriod, Integer durVal) {
+    LocalDate startDate = LocalDate.now().minusDays(durVal);
+    int startYear = startDate.getYear();
+    int startMonth = startDate.getMonthValue();
     List<CustomerInterface> customers = new ArrayList<>();
-    String dateFormat4java = "yyyy-MM-dd";
-    switch (durPeriod) {
-      case 1:
-        customers = statService.statCustomerByDay();
-        dateFormat4java = "yyyy-MM-dd";
-        break;
-      case 2:
-        customers = statService.statCustomerByMonth();
-        dateFormat4java = "yyyy-MM";
-        break;
-      case 3:
-        customers = statService.statCustomerByYear();
-        dateFormat4java = "yyyy";
-        break;
-      default:
-        LOG.info("不合法的统计周期:{}", durPeriod);
-    }
+    // 第三个返回值为java的SimpleDateFormat格式
+    String[] args = formatByDur(durPeriod, durVal);
+    String dateFormat4sql = args[0];
+    String startDay = args[1];
+    String dateFormat4java = args[2];
+    customers = durVal <= 0 ?
+            statService.statCustomerByDateFormat(dateFormat4sql)
+            : statService.statCustomerByDateFormatAndStartDay(dateFormat4sql, startDay);
     String title = "客户统计";
     List<String> legends = new ArrayList<>();
     List<String> xDataList = new ArrayList<>();

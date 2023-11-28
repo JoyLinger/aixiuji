@@ -68,7 +68,10 @@
         <!--子标题-->
         <div class="nav-content">
           <a href="/filter/allVips" target="menuFrame">会员管理</a>
-          <a href="/filter/showBills" target="menuFrame">账本管理</a>
+          <!-- Deprecated at 2023/6/2: 一次性返回全部数据,当数据条数1700+时,前端datatable明显加载速度变慢 -->
+<!--          <a href="/filter/showBills" target="menuFrame">账本管理</a>-->
+          <!-- 后端分页 -->
+          <a href="/filter/toBillPage" target="menuFrame">账本管理</a>
           <a href="/filter/showContrasts?key_id=1" target="menuFrame">页面数据管理</a>
         </div>
       </div>
@@ -79,7 +82,8 @@
         <div class="nav-title">经营统计</div>
         <!--子标题-->
         <div class="nav-content">
-          <a href="/filter/stats/income4month" target="menuFrame">营业额统计</a>
+<!--          <a href="/filter/stats/income4month" target="menuFrame">营业额统计</a>-->
+          <a href="/filter/stats/incomeBase?durPeriod=2&durVal=0" target="menuFrame">营业额统计</a>
           <a href="/filter/stats/customer4month" target="menuFrame">顾客量统计</a>
           <a href="/filter/stats/incomeHome" target="menuFrame">收入走势</a>
           <a href="/filter/stats/customerHome" target="menuFrame">顾客走势</a>

@@ -64,9 +64,17 @@ public class Vip {
   }
 
   public String detail() {
-    return "手机:" + tel +
-            (remark == null || remark.equals("") ? "" : ",备注:" + remark) +
-            ",开户日期:" + date;
+    return "手机：" + tel +
+            (remark == null || remark.equals("") ? "" : "，备注：" + remark) +
+            "，开户日期：" + date;
+  }
+
+  /**
+   * Generate html label
+   * @return html label
+   */
+  public String html() {
+    return "<data title=\""+detail()+"\">"+name+"</data>";
   }
 
   //  public String summary() {

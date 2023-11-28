@@ -1,4 +1,4 @@
---码表value表
+-- 码表value表
 USE aixiuji;
 DROP TABLE IF EXISTS contrast_value;
 CREATE TABLE IF NOT EXISTS contrast_value(
@@ -47,4 +47,6 @@ INSERT INTO contrast_value(key_id,value_id,name) VALUES(6,1,'1');
 INSERT INTO contrast_value(key_id,value_id,name) VALUES(6,2,'2');
 INSERT INTO contrast_value(key_id,value_id,name) VALUES(6,3,'3');
 INSERT INTO contrast_value(key_id,value_id,name) VALUES(6,4,'4');
+--
+alter table contrast_value add constraint FKfp9x2gdthgd7s7gxwq54h9os1 foreign key (key_id) references contrast_key (id);
 select * from contrast_value;

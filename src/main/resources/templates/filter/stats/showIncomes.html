@@ -18,6 +18,21 @@
   <link href="/css/general.css" rel="stylesheet">
 </head>
 <body>
+<!--<div class="row g-3">-->
+<!--  <div class="col-md-3">-->
+<!--    <label class="form-label" for="durVal" title="填写显示最近几天的数据，默认显示最近30天数据，0或负数表示显示全部数据">时间范围</label>-->
+<!--    <input class="form-control" id="durVal" name="durVal" value="0" type="text" onchange="drawEChart(this,'income')">-->
+<!--  </div>-->
+<!--  <div class="col-md-3">-->
+<!--    <label class="form-label">统计周期</label>-->
+<!--    <select class="form-select" id="durPeriod" name="durPeriod" onchange="drawEChart(this,'income')">-->
+<!--      <option disabled selected style="display:none;" value="2">按月</option>-->
+<!--&lt;!&ndash;      <option value="1">按天</option>&ndash;&gt;-->
+<!--      <option value="2">按月</option>-->
+<!--      <option value="3">按年</option>-->
+<!--    </select>-->
+<!--  </div>-->
+<!--</div>-->
 <table class="display" id="dataTable" rules="all" style="width:100%">
   <thead>
   <tr>
@@ -27,10 +42,10 @@
   </tr>
   </thead>
   <tbody>
-  <tr th:each="income : ${incomes}">
-    <td th:text="${income?.period}"></td>
-    <td th:text="${income?.income}"></td>
-    <td th:text="${income?.sales}"></td>
+  <tr th:each="income,incomeStat : ${incomes}">
+    <td th:text="${income?.getDate()}"></td>
+    <td th:text="${income?.getIncome()}"></td>
+    <td th:text="${income?.getPopulation()}"></td>
   </tr>
   </tbody>
 </table>

@@ -85,34 +85,32 @@ public class BillService {
     return bill;
   }
 
-  public Page<Bill> getAllBillPage(Integer pageNum, Integer pageSize, String sortCol) {
+  public Page<Bill> getAllBillPage(Integer pageNum, Integer pageSize, String sortCol, String sortDir) {
     pageNum = pageNum == null ? defaultPageNum : pageNum - 1;//前端显示是第N页,注意后台这里下标需要减1
     pageSize = pageSize == null ? defaultPageSize : pageSize;
     // 排序方式，这里是以“id”为标准进行降序
     // 这里的"id"是实体类的主键，记住一定要是实体类的属性，而不能是数据库的字段
     sortCol = sortCol == null ? "id" : sortCol;
-    Sort sort = Sort.by(Sort.Direction.DESC, sortCol);
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortCol);
     // （当前页， 每页记录数， 排序方式）
     Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-    Page<Bill> page = billRepo.getAllBill(pageable);
-    LOG.info("billPage={}", page);
+    Page<Bill> page = billRepo.getAllBillPage(pageable);
     LOG.info("bills={}", page.getContent());
     return page;
   }
 
-  public Page<Bill> getBillPageByStartDate(Integer pageNum, Integer pageSize, String sortCol, String startDate) {
+  public Page<Bill> getBillPageByDay(Integer pageNum, Integer pageSize, String sortCol, String sortDir, String day) {
     pageNum = pageNum == null ? defaultPageNum : pageNum - 1;//前端显示是第N页,注意后台这里下标需要减1
     pageSize = pageSize == null ? defaultPageSize : pageSize;
     // 排序方式，这里是以“id”为标准进行降序
     // 这里的"id"是实体类的主键，记住一定要是实体类的属性，而不能是数据库的字段
     sortCol = sortCol == null ? "id" : sortCol;
     // 截取到天
-//    startDate = startDate.split(" ")[0];
-    Sort sort = Sort.by(Sort.Direction.DESC, sortCol);
+//    day = day.split(" ")[0];
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortCol);
     // （当前页， 每页记录数， 排序方式）
     Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-    Page<Bill> page = billRepo.getBillAfterDate(startDate, pageable);
-    LOG.info("billPage={}", page);
+    Page<Bill> page = billRepo.getBillPageByDay(day, pageable);
     LOG.info("bills={}", page.getContent());
     return page;
   }
@@ -123,8 +121,8 @@ public class BillService {
     return bills;
   }
 
-  public List<Bill> getBillsByStartDate(String startDate) {
-    List<Bill> bills = billRepo.getBillsAfterDate(startDate);
+  public List<Bill> getBillsByDay(String day) {
+    List<Bill> bills = billRepo.getBillsByDay(day);
     LOG.info("bills={}", bills);
     return bills;
   }
@@ -141,13 +139,54 @@ public class BillService {
     return bill;
   }
 
-  public void updateBillById(int billId, int operation, int project, int pay_amount, int pay_method,String note) {
-    billRepo.updateBillById(billId, operation, project, pay_amount, pay_method, note);
+  public void updateBillById(int billId, int operation, int project, int pay_amount, int pay_method,String note,int role) {
+    billRepo.updateBillById(billId, operation, project, pay_amount, pay_method, note, role);
   }
 
   public void deleteBillsByCid(int cid) {
     billRepo.deleteBillsByCid(cid);
     billRepo.resetAutoIncrement();
+  }
+
+  public Long getRecordsTotal() {
+    return billRepo.getRecordsTotal();
+  }
+
+  public Long getRecordsTotal(String day) {
+    return billRepo.getRecordsTotal(day);
+  }
+
+  public Page<Bill> getBillPageByNote(Integer pageNum, Integer pageSize, String sortCol, String sortDir, String note) {
+    pageNum = pageNum == null ? defaultPageNum : pageNum - 1;//前端显示是第N页,注意后台这里下标需要减1
+    pageSize = pageSize == null ? defaultPageSize : pageSize;
+    // 排序方式，这里是以“id”为标准进行降序
+    // 这里的"id"是实体类的主键，记住一定要是实体类的属性，而不能是数据库的字段
+    sortCol = sortCol == null ? "id" : sortCol;
+    // 截取到天
+//    day = day.split(" ")[0];
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortCol);
+    // （当前页， 每页记录数， 排序方式）
+    Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+    Page<Bill> page = billRepo.getBillPageByNote(note, pageable);
+    LOG.info("bills={}", page.getContent());
+    return page;
+  }
+
+  public Page<Bill> getBillPageByDayAndNote(Integer pageNum, Integer pageSize, String sortCol, String sortDir, String day, String note) {
+    pageNum = pageNum == null ? defaultPageNum : pageNum - 1;//前端显示是第N页,注意后台这里下标需要减1
+    pageSize = pageSize == null ? defaultPageSize : pageSize;
+    // 排序方式，这里是以“id”为标准进行降序
+    // 这里的"id"是实体类的主键，记住一定要是实体类的属性，而不能是数据库的字段
+    sortCol = sortCol == null ? "id" : sortCol;
+    // 截取到天
+//    day = day.split(" ")[0];
+    Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortCol);
+    // （当前页， 每页记录数， 排序方式）
+    Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+    LOG.info("day={}, note={}", day, note);
+    Page<Bill> page = billRepo.getBillPageByDateAndNote(day, note, pageable);
+    LOG.info("bills={}", page.getContent());
+    return page;
   }
 
 //  public int incomeStats(String startDate, String endDate){

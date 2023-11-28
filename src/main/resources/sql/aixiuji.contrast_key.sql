@@ -1,8 +1,8 @@
---码表key表
+-- 码表key表
 USE aixiuji;
 DROP TABLE IF EXISTS contrast_key;
 CREATE TABLE IF NOT EXISTS contrast_key(
-  id int comment '自增主键,key id',
+  id int primary key AUTO_INCREMENT comment '自增主键,key id',
   name varchar(20) comment '名称',
   attr varchar(20) comment '会话中的变量名'
 );

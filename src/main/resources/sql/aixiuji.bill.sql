@@ -1,4 +1,4 @@
---充值、消费记录表
+-- 充值、消费记录表
 USE aixiuji;
 DROP TABLE IF EXISTS bill;
 CREATE TABLE IF NOT EXISTS bill(

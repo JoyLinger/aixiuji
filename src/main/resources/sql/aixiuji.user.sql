@@ -1,4 +1,4 @@
---登录用户信息表
+-- 登录用户信息表
 USE aixiuji;
 DROP TABLE IF EXISTS user;
 CREATE TABLE IF NOT EXISTS user(

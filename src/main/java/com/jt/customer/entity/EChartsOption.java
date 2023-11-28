@@ -29,4 +29,13 @@ public class EChartsOption {
             ", 'yAxis_data':" + yAxis_data +
             '}';
   }
+  public String toJson() {
+    return "{" +
+            "'title':'" + title + "'" +
+            ", 'legend':[" + MyJson.list2string(legend) + "]" +
+            ", 'xAxis_data':[" + MyJson.list2string(xAxis_data) + "]" +
+            ", 'series':" + series +
+            ", 'yAxis_data':" + yAxis_data +
+            '}';
+  }
 }

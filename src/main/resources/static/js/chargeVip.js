@@ -1,3 +1,10 @@
+// 点击行选中radio
+function shot(tr) {
+  console.log("tr="+tr);
+  //$(tr).find('input').prop('checked', true);
+}
+
+// 根据"操作"动态调整显示内容
 function showAndHide(mySelect){
   console.log("mySelect="+mySelect);
   if (mySelect && mySelect == '[object HTMLSelectElement]') {
