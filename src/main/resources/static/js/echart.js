@@ -43,7 +43,7 @@ function drawEChart(mySelect, type) {
         var option = json2option(jsonObj);
         console.log("option="+option);
         console.log("JSON.stringify(option)="+JSON.stringify(option));
-        myChart.setOption(option);
+        myChart.setOption(option, true);
         myChart.hideLoading();
       }
     },
@@ -56,23 +56,100 @@ function drawEChart(mySelect, type) {
 
 //根据数据生成chart option: 客户统计
 function json2option(jsonObj){
+  var years = jsonObj.xAxis_data;
+  
+  // 处理每个series，添加formatter到合计series
+  var allSeries = jsonObj.series.map(function(item) {
+    if(item.name === '收入合计' || item.name === '顾客合计') {
+      // 为合计series添加formatter
+      return Object.assign({}, item, {
+        label: {
+          show: true,
+          position: 'top',
+          fontSize: 14,
+          fontWeight: 'bold',
+          formatter: function(params) {
+            return years[params.dataIndex] + (item.name === '收入合计' ? '收入:' : '顾客:') + params.value;
+          }
+        },
+        itemStyle: {
+          opacity: 0.0
+        }
+      });
+    } else {
+      // 其他月份series显示标签，不隐藏
+      return Object.assign({}, item, {
+        barGap: 0,
+        barCategoryGap: '20%',
+        barWidth: '40%',
+        label: {
+          show: true,
+          position: 'inside',
+          formatter: function(params) {
+            var monthName = item.name;
+            var value = params.value;
+            if (value > 0) {
+              return monthName + '：' + value;
+            } else {
+              return '';
+            }
+          },
+          fontSize: 10
+        }
+      });
+    }
+  });
+  
   // 指定图表的配置项和数据
-  return option = {
+  var option = {
     title: {
       text: jsonObj.title
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'item',
+      formatter: function(params) {
+        var year = years[params.dataIndex];
+        var result = '';
+        
+        // 如果悬停在合计series上，只显示合计
+        if(params.seriesName === '收入合计' || params.seriesName === '顾客合计') {
+          return year + '年<br/>' + params.seriesName.replace('合计', '') + ': ' + params.value;
+        }
+        
+        // 否则，先计算当前年份的合计
+        var yearIncomeTotal = 0;
+        var yearPopulationTotal = 0;
+        
+        for(var i = 0; i < jsonObj.series.length; i++) {
+          var series = jsonObj.series[i];
+          if(series.name.indexOf('收入') >= 0 && series.name !== '收入合计') {
+            yearIncomeTotal += (series.data[params.dataIndex] || 0);
+          }
+          if(series.name.indexOf('顾客') >= 0 && series.name !== '顾客合计') {
+            yearPopulationTotal += (series.data[params.dataIndex] || 0);
+          }
+        }
+        
+        // 显示当前月份信息和合计
+        result = year + '年<br/>';
+        result += params.seriesName + ': ' + params.value + '<br/>';
+        result += '---合计---<br/>';
+        result += '收入: ' + yearIncomeTotal + '<br/>';
+        result += '顾客人数: ' + yearPopulationTotal;
+        
+        return result;
+      }
     },
     legend: {
       data: jsonObj.legend
     },
-//    grid: {
-//      left: '3%',
-//      right: '4%',
-//      bottom: '3%',
-//      containLabel: true
-//    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '10%',
+      containLabel: true
+    },
     toolbox: {
       show: true, //是否显示工具栏组件
       right: "5%",
@@ -146,9 +223,68 @@ function json2option(jsonObj){
 //        maxValueSpan: 1000 * 3600 * 7
 //      }
     },
-    yAxis: jsonObj.yAxis_data,
-    series: jsonObj.series
+    yAxis: (function() {
+      // 计算每个y轴的最大值，实现自适应
+      var yAxisData = jsonObj.yAxis_data;
+      var incomeMax = 0;
+      var populationMax = 0;
+      
+      for(var i = 0; i < jsonObj.series.length; i++) {
+        var series = jsonObj.series[i];
+        if(series.name.indexOf('收入') >= 0 && series.name !== '收入合计') {
+          for(var j = 0; j < series.data.length; j++) {
+            if(series.data[j] > incomeMax) {
+              incomeMax = series.data[j];
+            }
+          }
+        }
+        if(series.name.indexOf('顾客') >= 0 && series.name !== '顾客合计') {
+          for(var j = 0; j < series.data.length; j++) {
+            if(series.data[j] > populationMax) {
+              populationMax = series.data[j];
+            }
+          }
+        }
+      }
+      
+      // 计算每个年份的合计最大值
+      var yearIncomeTotalMax = 0;
+      var yearPopulationTotalMax = 0;
+      
+      for(var i = 0; i < years.length; i++) {
+        var yearIncomeTotal = 0;
+        var yearPopulationTotal = 0;
+        for(var j = 0; j < jsonObj.series.length; j++) {
+          var series = jsonObj.series[j];
+          if(series.name.indexOf('收入') >= 0 && series.name !== '收入合计') {
+            yearIncomeTotal += (series.data[i] || 0);
+          }
+          if(series.name.indexOf('顾客') >= 0 && series.name !== '顾客合计') {
+            yearPopulationTotal += (series.data[i] || 0);
+          }
+        }
+        if(yearIncomeTotal > yearIncomeTotalMax) {
+          yearIncomeTotalMax = yearIncomeTotal;
+        }
+        if(yearPopulationTotal > yearPopulationTotalMax) {
+          yearPopulationTotalMax = yearPopulationTotal;
+        }
+      }
+      
+      // 设置y轴最大值（使用合计最大值+10%的padding）
+      if(yAxisData[0]) {
+        yAxisData[0].max = Math.ceil(yearIncomeTotalMax * 1.1);
+      }
+      if(yAxisData[1]) {
+        yAxisData[1].max = Math.ceil(yearPopulationTotalMax * 1.1);
+      }
+      
+      return yAxisData;
+    })(),
+    series: allSeries
   };
+  
+  return option;
 }
 
 function distinct_add_array(arr, obj){

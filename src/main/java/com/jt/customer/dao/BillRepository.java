@@ -130,7 +130,7 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
    * @param pageable 分页信息
    * @return 结果
    */
-  @Query(value = "SELECT * FROM bill WHERE substring(date,1,10)=?1", countQuery = "SELECT COUNT(*) FROM bill", nativeQuery = true)
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,10)=?1", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,10)=?1", nativeQuery = true)
   Page<Bill> getBillPageByDay(String day, Pageable pageable);
 
   @Query(value = "SELECT * FROM bill", nativeQuery = true)
@@ -233,4 +233,55 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
    */
   @Query(value = "SELECT * FROM bill WHERE substring(date,1,10)=?1 AND note like ?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,10)=?1 AND note like ?2", nativeQuery = true)
   Page<Bill> getBillPageByDateAndNote(String day, String note, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE project=?1", countQuery = "SELECT COUNT(*) FROM bill WHERE project=?1", nativeQuery = true)
+  Page<Bill> getBillPageByProject(Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,10)=?1 AND project=?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,10)=?1 AND project=?2", nativeQuery = true)
+  Page<Bill> getBillPageByDayAndProject(String day, Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE note like ?1 AND project=?2", countQuery = "SELECT COUNT(*) FROM bill WHERE note like ?1 AND project=?2", nativeQuery = true)
+  Page<Bill> getBillPageByNoteAndProject(String note, Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,10)=?1 AND note like ?2 AND project=?3", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,10)=?1 AND note like ?2 AND project=?3", nativeQuery = true)
+  Page<Bill> getBillPageByDayNoteAndProject(String day, String note, Integer project, Pageable pageable);
+
+  // 按月份查询
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,7)=?1", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,7)=?1", nativeQuery = true)
+  Page<Bill> getBillPageByMonth(String month, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,7)=?1 AND note like ?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,7)=?1 AND note like ?2", nativeQuery = true)
+  Page<Bill> getBillPageByMonthAndNote(String month, String note, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,7)=?1 AND project=?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,7)=?1 AND project=?2", nativeQuery = true)
+  Page<Bill> getBillPageByMonthAndProject(String month, Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,7)=?1 AND note like ?2 AND project=?3", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,7)=?1 AND note like ?2 AND project=?3", nativeQuery = true)
+  Page<Bill> getBillPageByMonthNoteAndProject(String month, String note, Integer project, Pageable pageable);
+
+  // 按年份查询
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,4)=?1", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,4)=?1", nativeQuery = true)
+  Page<Bill> getBillPageByYear(String year, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,4)=?1 AND note like ?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,4)=?1 AND note like ?2", nativeQuery = true)
+  Page<Bill> getBillPageByYearAndNote(String year, String note, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,4)=?1 AND project=?2", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,4)=?1 AND project=?2", nativeQuery = true)
+  Page<Bill> getBillPageByYearAndProject(String year, Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE substring(date,1,4)=?1 AND note like ?2 AND project=?3", countQuery = "SELECT COUNT(*) FROM bill WHERE substring(date,1,4)=?1 AND note like ?2 AND project=?3", nativeQuery = true)
+  Page<Bill> getBillPageByYearNoteAndProject(String year, String note, Integer project, Pageable pageable);
+
+  // 按季度查询 (季度格式：yyyy-Q1, yyyy-Q2, yyyy-Q3, yyyy-Q4)
+  @Query(value = "SELECT * FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1", countQuery = "SELECT COUNT(*) FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1", nativeQuery = true)
+  Page<Bill> getBillPageByQuarter(String quarter, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND note like ?2", countQuery = "SELECT COUNT(*) FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND note like ?2", nativeQuery = true)
+  Page<Bill> getBillPageByQuarterAndNote(String quarter, String note, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND project=?2", countQuery = "SELECT COUNT(*) FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND project=?2", nativeQuery = true)
+  Page<Bill> getBillPageByQuarterAndProject(String quarter, Integer project, Pageable pageable);
+
+  @Query(value = "SELECT * FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND note like ?2 AND project=?3", countQuery = "SELECT COUNT(*) FROM bill WHERE concat(substring(date,1,4),'-Q',quarter(date))=?1 AND note like ?2 AND project=?3", nativeQuery = true)
+  Page<Bill> getBillPageByQuarterNoteAndProject(String quarter, String note, Integer project, Pageable pageable);
 }

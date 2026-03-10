@@ -32,6 +32,10 @@ public class StatController {
     String startDay = args[1];
     List<IncomeInterface> incomes = statIncomes(dateFormat4sql, startDay, durVal);
     model.addAttribute("incomes", incomes);
+    if(durPeriod != null && durPeriod == 3) {
+      List<IncomeInterface> monthlyIncomes = statIncomes("%Y-%m", startDay.substring(0, 4) + "-01", durVal);
+      model.addAttribute("monthlyIncomes", monthlyIncomes);
+    }
     return "filter/stats/showIncomes";
   }
 
@@ -123,53 +127,222 @@ public class StatController {
     String startDay = args[1];
     String dateFormat4java = args[2];
     List<IncomeInterface> incomes = statIncomes(dateFormat4sql, startDay, durVal);
-    for (int i = 0; i < incomes.size(); i++) {
-      IncomeInterface income = incomes.get(i);
-      String date_x = income.getDate();
-      int income_y1 = income.getIncome();
-      int population_y2 = income.getPopulation();
-      if (i == 0) {
-        // 首次迭代: 直接放入xDataList
-        xDataList.add(date_x);
-        // 首次迭代: 直接放入seriesMap
-        List<Integer> income_y1_list = new ArrayList<>();
-        income_y1_list.add(income_y1);
-        seriesMap.put("收入", income_y1_list);
-        List<Integer> population_y2_list = new ArrayList<>();
-        population_y2_list.add(population_y2);
-        seriesMap.put("顾客人数", population_y2_list);
-      } else {
-        // 多次迭代: 补全x轴间断日期及其对应y轴数据
-        List<String> gapDates = getGapDates(xDataList.get(xDataList.size() - 1), date_x, dateFormat4java);
-        // 补全x轴间断日期
-        xDataList.addAll(gapDates);
-        // 更新seriesMap中老的系列值
-        List<Integer> income_y1_list = seriesMap.get("收入");
-        List<Integer> population_y2_list = seriesMap.get("顾客人数");
-        // 补全对应y轴数据
-        for(int y=0;y<gapDates.size();y++){
-          income_y1_list.add(0);
-          population_y2_list.add(0);
+    
+    // 判断是否按年统计
+    boolean isYearStat = (durPeriod != null && durPeriod == 3);
+    
+    if(isYearStat && incomes != null && !incomes.isEmpty()) {
+      // 按年统计：获取所有年份
+      List<String> years = new ArrayList<>();
+      for(IncomeInterface income : incomes) {
+        String date = income.getDate();
+        if(date.length() == 4) {
+          years.add(date);
+        } else if(date.length() == 7) {
+          String year = date.substring(0, 4);
+          if(!years.contains(year)) {
+            years.add(year);
+          }
         }
-        // 最后加上本次迭代数据
-        xDataList.add(date_x);
-        income_y1_list.add(income_y1);
-        population_y2_list.add(population_y2);
-        seriesMap.put("收入", income_y1_list);
-        seriesMap.put("顾客人数", population_y2_list);
+      }
+      
+      // x轴为年份
+      for(String year : years) {
+        xDataList.add(year);
+      }
+      
+      // 为每个年份获取12个月份的数据
+      // 收入系列：每个年份的12个月份堆叠
+      for(int month = 1; month <= 12; month++) {
+        String monthName = month + "月_收入";
+        List<Integer> monthDataList = new ArrayList<>();
+        for(String year : years) {
+          List<IncomeInterface> monthlyIncomes = statIncomes("%Y-%m", year + "-01", -1);
+          int monthValue = 0;
+          for(IncomeInterface mi : monthlyIncomes) {
+            String miDate = mi.getDate();
+            String miYearStr = miDate.substring(0, 4);
+            String miMonthStr = miDate.substring(miDate.length() - 2);
+            int miYear = Integer.parseInt(miYearStr);
+            int miMonth = Integer.parseInt(miMonthStr);
+            if(miYear == Integer.parseInt(year) && miMonth == month) {
+              monthValue = mi.getIncome();
+              break;
+            }
+          }
+          monthDataList.add(monthValue);
+        }
+        EChartsSeries incomeSeries = new EChartsSeries(monthName, monthDataList);
+        incomeSeries.setyAxisIndex(0);
+        incomeSeries.setStack("incomeStack");
+        incomeSeries.setType("bar");
+        incomeSeries.setBarGap("0%");
+        incomeSeries.setBarWidth("40%");
+        seriesList.add(incomeSeries);
+      }
+      
+      // 顾客人数系列：每个年份的12个月份堆叠
+      for(int month = 1; month <= 12; month++) {
+        String monthName = month + "月_顾客";
+        List<Integer> monthDataList = new ArrayList<>();
+        for(String year : years) {
+          List<IncomeInterface> monthlyIncomes = statIncomes("%Y-%m", year + "-01", -1);
+          int monthValue = 0;
+          for(IncomeInterface mi : monthlyIncomes) {
+            String miDate = mi.getDate();
+            String miYearStr = miDate.substring(0, 4);
+            String miMonthStr = miDate.substring(miDate.length() - 2);
+            int miYear = Integer.parseInt(miYearStr);
+            int miMonth = Integer.parseInt(miMonthStr);
+            if(miYear == Integer.parseInt(year) && miMonth == month) {
+              monthValue = mi.getPopulation();
+              break;
+            }
+          }
+          monthDataList.add(monthValue);
+        }
+        EChartsSeries populationSeries = new EChartsSeries(monthName, monthDataList);
+        populationSeries.setyAxisIndex(1);
+        populationSeries.setStack("populationStack");
+        populationSeries.setType("bar");
+        populationSeries.setBarGap("0%");
+        populationSeries.setBarWidth("40%");
+        seriesList.add(populationSeries);
+      }
+      
+      // 图例只显示"收入"和"顾客人数"
+      legends.add("收入");
+      legends.add("顾客人数");
+      
+      // 计算每个年份的合计值
+      Map<String, Integer> yearIncomeTotals = new HashMap<>();
+      Map<String, Integer> yearPopulationTotals = new HashMap<>();
+      for(String year : years) {
+        yearIncomeTotals.put(year, 0);
+        yearPopulationTotals.put(year, 0);
+      }
+      
+      // 计算每个年份的收入和顾客人数合计
+      for(EChartsSeries series : seriesList) {
+        String seriesName = series.getName();
+        boolean isIncome = seriesName.contains("收入");
+        boolean isPopulation = seriesName.contains("顾客");
+        
+        for(int i = 0; i < series.getData().length; i++) {
+          String year = years.get(i);
+          Integer value = series.getData()[i];
+          if(value != null) {
+            if(isIncome) {
+              yearIncomeTotals.put(year, yearIncomeTotals.get(year) + value);
+            }
+            if(isPopulation) {
+              yearPopulationTotals.put(year, yearPopulationTotals.get(year) + value);
+            }
+          }
+        }
+      }
+      
+      // 添加收入合计series
+      List<Integer> incomeTotalData = new ArrayList<>();
+      for(String year : years) {
+        incomeTotalData.add(yearIncomeTotals.get(year));
+      }
+      EChartsSeries incomeTotalSeries = new EChartsSeries("收入合计", incomeTotalData);
+      incomeTotalSeries.setyAxisIndex(0);
+      incomeTotalSeries.setStack("incomeStack");
+      incomeTotalSeries.setType("bar");
+      incomeTotalSeries.setBarGap("0%");
+      incomeTotalSeries.setBarWidth("40%");
+      
+      EChartsSeries.Label incomeLabel = new EChartsSeries.Label();
+      incomeLabel.setShow(true);
+      incomeLabel.setPosition("top");
+      incomeLabel.setFontSize(14);
+      incomeLabel.setFontWeight("bold");
+      incomeTotalSeries.setLabel(incomeLabel);
+      
+      EChartsSeries.ItemStyle incomeItemStyle = new EChartsSeries.ItemStyle();
+      incomeItemStyle.setOpacity(0.0);
+      incomeTotalSeries.setItemStyle(incomeItemStyle);
+      
+      seriesList.add(incomeTotalSeries);
+      
+      // 添加顾客合计series
+      List<Integer> populationTotalData = new ArrayList<>();
+      for(String year : years) {
+        populationTotalData.add(yearPopulationTotals.get(year));
+      }
+      EChartsSeries populationTotalSeries = new EChartsSeries("顾客合计", populationTotalData);
+      populationTotalSeries.setyAxisIndex(1);
+      populationTotalSeries.setStack("populationStack");
+      populationTotalSeries.setType("bar");
+      populationTotalSeries.setBarGap("0%");
+      populationTotalSeries.setBarWidth("40%");
+      
+      EChartsSeries.Label populationLabel = new EChartsSeries.Label();
+      populationLabel.setShow(true);
+      populationLabel.setPosition("top");
+      populationLabel.setFontSize(14);
+      populationLabel.setFontWeight("bold");
+      populationTotalSeries.setLabel(populationLabel);
+      
+      EChartsSeries.ItemStyle populationItemStyle = new EChartsSeries.ItemStyle();
+      populationItemStyle.setOpacity(0.0);
+      populationTotalSeries.setItemStyle(populationItemStyle);
+      
+      seriesList.add(populationTotalSeries);
+    } else {
+      // 按天或按月统计
+      for (int i = 0; i < incomes.size(); i++) {
+        IncomeInterface income = incomes.get(i);
+        String date_x = income.getDate();
+        int income_y1 = income.getIncome();
+        int population_y2 = income.getPopulation();
+        if (i == 0) {
+          // 首次迭代: 直接放入xDataList
+          xDataList.add(date_x);
+          // 首次迭代: 直接放入seriesMap
+          List<Integer> income_y1_list = new ArrayList<>();
+          income_y1_list.add(income_y1);
+          seriesMap.put("收入", income_y1_list);
+          List<Integer> population_y2_list = new ArrayList<>();
+          population_y2_list.add(population_y2);
+          seriesMap.put("顾客人数", population_y2_list);
+        } else {
+          // 多次迭代: 补全x轴间断日期及其对应y轴数据
+          List<String> gapDates = getGapDates(xDataList.get(xDataList.size() - 1), date_x, dateFormat4java);
+          // 补全x轴间断日期
+          xDataList.addAll(gapDates);
+          // 更新seriesMap中老的系列值
+          List<Integer> income_y1_list = seriesMap.get("收入");
+          List<Integer> population_y2_list = seriesMap.get("顾客人数");
+          // 补全对应y轴数据
+          for(int y=0;y<gapDates.size();y++){
+            income_y1_list.add(0);
+            population_y2_list.add(0);
+          }
+          // 最后加上本次迭代数据
+          xDataList.add(date_x);
+          income_y1_list.add(income_y1);
+          population_y2_list.add(population_y2);
+          seriesMap.put("收入", income_y1_list);
+          seriesMap.put("顾客人数", population_y2_list);
+        }
+      }
+      for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
+        EChartsSeries series1 = new EChartsSeries(entry.getKey(), entry.getValue());
+        if(series1.getName().equals("收入")){
+            series1.setyAxisIndex(0);
+          }else if(series1.getName().equals("顾客人数")){
+            series1.setyAxisIndex(1);
+            series1.setType("bar");
+          }
+        seriesList.add(series1);
       }
     }
-    for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
-      EChartsSeries series1 = new EChartsSeries(entry.getKey(), entry.getValue());
-      if(series1.getName().equals("收入")){
-        series1.setyAxisIndex(0);
-      }else if(series1.getName().equals("顾客人数")){
-        series1.setyAxisIndex(1);
-        series1.setType("bar");
-      }
-      seriesList.add(series1);
-    }
+    
     EChartsOption eChartsOption = new EChartsOption(title, legends, xDataList, seriesList, yAxisList);
+    eChartsOption.setTooltipStack(true);
     LOG.info("eChartsOption={}", eChartsOption);
     JSONObject jsonObj = JSONObject.parseObject(eChartsOption.toString());
     LOG.info("jsonObj={}", jsonObj);

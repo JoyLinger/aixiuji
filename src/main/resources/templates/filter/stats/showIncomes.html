@@ -49,5 +49,36 @@
   </tr>
   </tbody>
 </table>
+
+<div th:if="${monthlyIncomes}">
+  <h4>每月明细</h4>
+  <table class="display" id="monthlyDataTable" rules="all" style="width:100%">
+    <thead>
+    <tr>
+      <th>年份</th>
+      <th>1月</th>
+      <th>2月</th>
+      <th>3月</th>
+      <th>4月</th>
+      <th>5月</th>
+      <th>6月</th>
+      <th>7月</th>
+      <th>8月</th>
+      <th>9月</th>
+      <th>10月</th>
+      <th>11月</th>
+      <th>12月</th>
+      <th>年度合计</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="income : ${monthlyIncomes}">
+      <td th:text="${income?.getDate()}"></td>
+      <td th:text="${income?.getIncome()}"></td>
+      <td th:text="${income?.getPopulation()}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 </body>
 </html>
