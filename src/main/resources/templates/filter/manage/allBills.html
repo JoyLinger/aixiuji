@@ -20,9 +20,6 @@
 
 <body>
 <div style="margin-bottom: 10px;">
-  <label>选择日期：</label>
-  <input class="Wdate" id="queryDay" name="day" type="text" style="width: 150px;">
-  
   <label style="margin-left: 20px;">日期维度：</label>
   <select id="dateDim" style="width: 100px;">
     <option value="day">按天</option>
@@ -30,8 +27,11 @@
     <option value="year">按年</option>
     <option value="quarter">按季度</option>
   </select>
-  
-  <label style="margin-left: 20px;">项目：</label>
+
+    <label>选择日期：</label>
+    <input class="Wdate" id="queryDay" name="day" type="text" style="width: 150px;">
+
+    <label style="margin-left: 20px;">项目：</label>
   <select id="projectFilter" style="width: 150px;">
     <option value="-1">全部</option>
     <option th:each="project : ${session.projects}" th:value="${project.value_id}" th:text="${project.name}"></option>
