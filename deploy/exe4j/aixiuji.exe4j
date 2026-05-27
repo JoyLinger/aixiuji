@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exe4j version="10.0.1" transformSequenceNumber="3">
+  <directoryPresets config="D:/code/project/IdeaProjects/aixiuji/target" />
+  <application name="aixiuji" distributionSourceDir="D:/code/project/IdeaProjects/aixiuji/deploy/exe4j" />
+  <executable name="爱秀季" wrapperType="embed" executableDir="." redirectStderr="false" executableMode="gui" singleInstance="true" globalSingleInstance="true">
+    <versionInfo include="true" fileVersion="1.0.0.0" companyName="JL" productVersion="1.0.0" />
+  </executable>
+  <java mainClass="org.springframework.boot.loader.JarLauncher" minVersion="1.8" maxVersion="1.8">
+    <classPath>
+      <archive location="D:/code/project/IdeaProjects/aixiuji/target/customer-1.0.0.jar" failOnError="false" />
+    </classPath>
+  </java>
+</exe4j>
