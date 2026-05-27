@@ -1,8 +1,9 @@
 package com.jt.customer.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jt.customer.entity.Bill;
-//import com.jt.customer.entity.DataTablePageDto;
+import com.jt.customer.entity.DataTablePageDto;
 import com.jt.customer.service.BillService;
 import com.jt.customer.service.CardService;
 import org.slf4j.Logger;
@@ -106,173 +107,167 @@ public class BillController {
    * 后端分页
    * 使用@RequestBody注解接收前端POST请求传递的参数
    * @param dataTablePage 使用实例DataTablePageDto接收前端POST请求传递的参数
-   * @param session 从HttpSession中获取会话参数,用于数据格式化
+   * @param session 从HttpSession中获取会话参数，用于数据格式化
    * @return 结果数据
    */
-//  @RequestMapping("/filter/showBillPage")
-//  @PostMapping("/filter/showBillPage") //接收post请求
-//  @ResponseBody
-//  Object showBillPage(@RequestBody DataTablePageDto dataTablePage, HttpSession session) {
-//    LOG.info("data={}", dataTablePage.toString());
-//    LOG.info("day={}, project={}, search={}, dateDim={}", dataTablePage.getDay(), dataTablePage.getProject(), dataTablePage.getSearch(), dataTablePage.getDateDim());
-//    DataTablePageDto<Bill> billPage = new DataTablePageDto<>();//分页对象
-//    billPage.setStart(dataTablePage.getStart());//设置起始查询页
-//    billPage.setLength(dataTablePage.getLength()); //设置查询条数
-//    billPage.setDraw(dataTablePage.getDraw());//绘制次数
-//    billPage.setRecordsTotal(billService.getRecordsTotal());//总行数
-//    // 目前需求:只过滤note备注字段
-//    String searchStr = dataTablePage.getSearch(); //过滤
-//    LOG.info("searchStr={}", searchStr);
-//    long recordsTotal = 0;
-//    int pageNo = dataTablePage.getStart() / dataTablePage.getLength() + 1; //页码
-//    Page<Bill> bills = null;
-//    try {
-//      // get order info
-//      String sortCol = dataTablePage.getSortColumn(0);
-//      String sortDirection = dataTablePage.getSortDirection(0);
-//
-//      String dateDim = dataTablePage.getDateDim();
-//      if (dateDim == null) {
-//        dateDim = "day";
-//      }
-//
-//      if (dataTablePage.getDay() == null || dataTablePage.getDay().equals("")) {
-//        if(searchStr == null || searchStr.equals("")) {
-//          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
-//            // day、search和project参数均为空时,查询所有账单
-//            LOG.info("查询所有账单");
-//            bills = billService.getAllBillPage(pageNo, dataTablePage.getLength(), sortCol, sortDirection); // 分页查询
-//          }else{
-//            // day和search参数为空,project参数不为空时,按照project过滤账单
-//            LOG.info("按project过滤: {}", dataTablePage.getProject());
-//            bills = billService.getBillPageByProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getProject()); // 分页查询
-//          }
-//        }else{
-//          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
-//            // day参数为空,search和project参数不为空时,按照search和project过滤账单
-//            LOG.info("按search和project过滤: {}, {}", searchStr, dataTablePage.getProject());
-//            bills = billService.getBillPageByNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, '%' + searchStr + '%', dataTablePage.getProject()); // 分页查询
-//          }else{
-//            // search参数为空,day和project参数不为空时,按照day和project过滤账单
-//            LOG.info("按day和project过滤: {}, {}", dataTablePage.getDay(), dataTablePage.getProject());
-//            bills = billService.getBillPageByDayAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject()); // 分页查询
-//          }
-//        }
-//      } else {
-//        // 有日期参数，根据日期维度进行查询
-//        if(searchStr == null || searchStr.equals("")) {
-//          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
-//            // day参数不为空,search和project参数为空时,按照day过滤账单
-//            LOG.info("按dateDim={}过滤: {}", dateDim, dataTablePage.getDay());
-//            switch(dateDim) {
-//              case "day":
-//                bills = billService.getBillPageByDay(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
-//                break;
-//              case "month":
-//                bills = billService.getBillPageByMonth(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
-//                break;
-//              case "year":
-//                bills = billService.getBillPageByYear(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
-//                break;
-//              case "quarter":
-//                bills = billService.getBillPageByQuarter(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
-//                break;
-//              default:
-//                bills = billService.getBillPageByDay(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
-//                break;
-//            }
-//          }else{
-//            // day参数不为空,search为空,project参数不为空时,按照day和project过滤账单
-//            LOG.info("按dateDim={}和project过滤: {}, {}", dateDim, dataTablePage.getDay(), dataTablePage.getProject());
-//            switch(dateDim) {
-//              case "day":
-//                bills = billService.getBillPageByDayAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
-//                break;
-//              case "month":
-//                bills = billService.getBillPageByMonthAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
-//                break;
-//              case "year":
-//                bills = billService.getBillPageByYearAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
-//                break;
-//              case "quarter":
-//                bills = billService.getBillPageByQuarterAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
-//                break;
-//              default:
-//                bills = billService.getBillPageByDayAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
-//                break;
-//            }
-//          }
-//        }else{
-//          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
-//            // day和project参数为空,search参数不为空时,按照day和search过滤账单
-//            LOG.info("按dateDim={}和search过滤: {}, {}", dateDim, dataTablePage.getDay(), searchStr);
-//            switch(dateDim) {
-//              case "day":
-//                bills = billService.getBillPageByDayAndNote(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
-//                break;
-//              case "month":
-//                bills = billService.getBillPageByMonthAndNote(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
-//                break;
-//              case "year":
-//                bills = billService.getBillPageByYearAndNote(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
-//                break;
-//              case "quarter":
-//                bills = billService.getBillPageByQuarterAndNote(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
-//                break;
-//              default:
-//                bills = billService.getBillPageByDayAndNote(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
-//                break;
-//            }
-//          }else{
-//            // day、search和project参数均不为空时,按照day、search和project过滤账单
-//            LOG.info("按dateDim={}、search和project过滤: {}, {}, {}", dateDim, dataTablePage.getDay(), searchStr, dataTablePage.getProject());
-//            switch(dateDim) {
-//              case "day":
-//                bills = billService.getBillPageByDayNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
-//                break;
-//              case "month":
-//                bills = billService.getBillPageByMonthNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
-//                break;
-//              case "year":
-//                bills = billService.getBillPageByYearNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
-//                break;
-//              case "quarter":
-//                bills = billService.getBillPageByQuarterNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
-//                break;
-//              default:
-//                bills = billService.getBillPageByDayNoteAndProject(pageNo, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
-//                break;
-//            }
-//          }
-//        }
-//      }
-//    } catch (Exception e) {
-//      LOG.error("查询异常", e);
-//      return JSONObject.parseObject("{\"code\":\"9999\",\"success\":false,\"data\":null,\"msg\":\"未知异常\"}");
-//    }
-//    billPage.setRecordsFiltered(bills.getTotalElements());//过滤后的行数
-//    billPage.setRecordsTotal(bills.getTotalElements());//过滤后的行数
-//    // bills账单list转json array要用[]进行包裹
-//    StringBuilder jsonArrSB = new StringBuilder("[");
-//    for (Bill b : bills) {
-//      if (jsonArrSB.length() <= 1) {
-//        jsonArrSB.append(b.toJson(session));
-//      } else {
-//        jsonArrSB.append(",").append(b.toJson(session));
-//      }
-//    }
-//    jsonArrSB.append("]");
-//    System.out.println("jsonArrSB="+jsonArrSB);
-//    billPage.setData(jsonArrSB.toString());
-//    System.out.println("billPage.toJson()="+billPage.toJson());
-////    String result = JSON.toJSONString(billPage);
-////    LOG.info("result={}", result);
-////    JSONObject jsonObj = JSONObject.parseObject(result);
-//    JSONObject jsonObj = JSONObject.parseObject(billPage.toJson());
-////    JSONArray jsonObj = JSONObject.parseArray(billPage.toJson());
-//    LOG.info("jsonObj={}", jsonObj);
-//    return jsonObj;
-//  }
+  @RequestMapping("/filter/showBillPage")
+  @PostMapping("/filter/showBillPage")
+  @ResponseBody
+  Object showBillPage(@RequestBody DataTablePageDto dataTablePage, HttpSession session) {
+    try {
+      LOG.info("data={}", dataTablePage.toString());
+      LOG.info("day={}, project={}, search={}, dateDim={}", dataTablePage.getDay(), dataTablePage.getProject(), dataTablePage.getSearch(), dataTablePage.getDateDim());
+      
+      String searchStr = dataTablePage.getSearch();
+      int pageNum = dataTablePage.getStart() / dataTablePage.getLength() + 1;
+      org.springframework.data.domain.Page<Bill> bills = null;
+      
+      String sortCol = dataTablePage.getSortColumn(0);
+      String sortDirection = dataTablePage.getSortDirection(0);
+      String dateDim = dataTablePage.getDateDim();
+      if (dateDim == null) {
+        dateDim = "day";
+      }
+      
+      if (dataTablePage.getDay() == null || dataTablePage.getDay().equals("")) {
+        if(searchStr == null || searchStr.equals("")) {
+          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
+            LOG.info("查询所有账单");
+            bills = billService.getAllBillPage(pageNum, dataTablePage.getLength(), sortCol, sortDirection);
+          } else {
+            LOG.info("按project过滤: {}", dataTablePage.getProject());
+            bills = billService.getBillPageByProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getProject());
+          }
+        } else {
+          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
+            LOG.info("按search和project过滤: {}, {}", searchStr, dataTablePage.getProject());
+            bills = billService.getBillPageByNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, '%' + searchStr + '%', dataTablePage.getProject());
+          } else {
+            LOG.info("按day和project过滤: {}, {}", dataTablePage.getDay(), dataTablePage.getProject());
+            bills = billService.getBillPageByDayAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+          }
+        }
+      } else {
+        if(searchStr == null || searchStr.equals("")) {
+          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
+            LOG.info("按dateDim={}过滤: {}", dateDim, dataTablePage.getDay());
+            switch(dateDim) {
+              case "day":
+                bills = billService.getBillPageByDay(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
+                break;
+              case "month":
+                bills = billService.getBillPageByMonth(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
+                break;
+              case "year":
+                bills = billService.getBillPageByYear(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
+                break;
+              case "quarter":
+                bills = billService.getBillPageByQuarter(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
+                break;
+              default:
+                bills = billService.getBillPageByDay(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay());
+                break;
+            }
+          } else {
+            LOG.info("按dateDim={}和project过滤: {}, {}", dateDim, dataTablePage.getDay(), dataTablePage.getProject());
+            switch(dateDim) {
+              case "day":
+                bills = billService.getBillPageByDayAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+                break;
+              case "month":
+                bills = billService.getBillPageByMonthAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+                break;
+              case "year":
+                bills = billService.getBillPageByYearAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+                break;
+              case "quarter":
+                bills = billService.getBillPageByQuarterAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+                break;
+              default:
+                bills = billService.getBillPageByDayAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), dataTablePage.getProject());
+                break;
+            }
+          }
+        } else {
+          if(dataTablePage.getProject() == null || dataTablePage.getProject() == -1) {
+            LOG.info("按dateDim={}和search过滤: {}, {}", dateDim, dataTablePage.getDay(), searchStr);
+            switch(dateDim) {
+              case "day":
+                bills = billService.getBillPageByDayAndNote(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
+                break;
+              case "month":
+                bills = billService.getBillPageByMonthAndNote(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
+                break;
+              case "year":
+                bills = billService.getBillPageByYearAndNote(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
+                break;
+              case "quarter":
+                bills = billService.getBillPageByQuarterAndNote(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
+                break;
+              default:
+                bills = billService.getBillPageByDayAndNote(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%');
+                break;
+            }
+          } else {
+            LOG.info("按dateDim={}、search和project过滤: {}, {}, {}", dateDim, dataTablePage.getDay(), searchStr, dataTablePage.getProject());
+            switch(dateDim) {
+              case "day":
+                bills = billService.getBillPageByDayNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
+                break;
+              case "month":
+                bills = billService.getBillPageByMonthNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
+                break;
+              case "year":
+                bills = billService.getBillPageByYearNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
+                break;
+              case "quarter":
+                bills = billService.getBillPageByQuarterNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
+                break;
+              default:
+                bills = billService.getBillPageByDayNoteAndProject(pageNum, dataTablePage.getLength(), sortCol, sortDirection, dataTablePage.getDay(), '%' + searchStr + '%', dataTablePage.getProject());
+                break;
+            }
+          }
+        }
+      }
+      
+      // 构建响应对象
+      JSONObject result = new JSONObject();
+      result.put("draw", dataTablePage.getDraw());
+      result.put("recordsTotal", bills.getTotalElements());
+      result.put("recordsFiltered", bills.getTotalElements());
+      
+      // 构建数据数组 - 先使用Bill类的toJson方法（更稳定
+      JSONArray dataArray = new JSONArray();
+      for (Bill b : bills) {
+        try {
+          dataArray.add(JSONObject.parse(b.toJson(session)));
+        } catch (Exception e) {
+          LOG.error("处理账单数据转换异常", e);
+          JSONObject billJson = new JSONObject();
+          billJson.put("id", b.getId());
+          billJson.put("date", b.getDate());
+          billJson.put("day", b.getDay());
+          billJson.put("operation", b.getOperation());
+          billJson.put("role", b.getRole());
+          billJson.put("pay_method", b.getPay_method());
+          billJson.put("pay_amount", b.getPay_amount());
+          billJson.put("project", b.getProject());
+          billJson.put("note", b.getNote() != null ? b.getNote() : "");
+          billJson.put("card", "-");
+          billJson.put("vip", "-");
+          dataArray.add(billJson);
+        }
+      }
+      
+      result.put("data", dataArray);
+      LOG.info("result size={}", dataArray.size());
+      return result;
+    } catch (Exception e) {
+      LOG.error("查询异常", e);
+      return JSONObject.parseObject("{\"draw\":1,\"recordsTotal\":0,\"recordsFiltered\":0,\"data\":[]}");
+    }
+  }
 
   /**
    * 显示会员卡所有账单明细
