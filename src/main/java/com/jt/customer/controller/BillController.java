@@ -90,10 +90,16 @@ public class BillController {
     return prefix + "manage/allBills";
   }
 
+  /**
+   * 消费查询
+   * @param session
+   * @param model
+   * @return
+   */
   @RequestMapping("/filter/toBillPage")
   String toBillPage(HttpSession session, Model model){
     model.addAttribute("projects", session.getAttribute("projects"));
-    return prefix + "manage/billPage";
+    return prefix + "manage/allBills";
   }
 
   /**
