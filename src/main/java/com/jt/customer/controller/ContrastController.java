@@ -1,6 +1,8 @@
 package com.jt.customer.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jt.customer.entity.ContrastKey;
+import com.jt.customer.entity.ContrastValue;
 import com.jt.customer.service.ContrastService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -98,5 +102,25 @@ public class ContrastController {
     // 重定向,手动拼接URL
     return "redirect:/filter/showContrasts?key_id=" + key_id;
   }
+
+  @RequestMapping("/filter/getContrast")
+  @ResponseBody
+  String getContrast(Integer key_id, Integer value_id, HttpSession session) {
+//    JSONObject resultJson = new JSONObject();
+    for (ContrastKey contrastKey : (List<ContrastKey>) session.getAttribute("contrastKeys")) {
+      if (contrastKey.getId() == key_id) {
+        List<ContrastValue> contrastValueList = (List<ContrastValue>) session.getAttribute(contrastKey.getAttr());
+        for(ContrastValue contrastValue : contrastValueList){
+          if(contrastValue.getValue_id() == value_id){
+//            resultJson.put("name", contrastValue.getName());
+//            return JSONObject.toJSONString(resultJson);
+            return contrastValue.getName();
+          }
+        }
+      }
+    }
+    return "";
+  }
+
 
 }

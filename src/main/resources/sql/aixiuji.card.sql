@@ -1,4 +1,4 @@
---充值、消费记录表
+-- 会员卡信息表
 USE aixiuji;
 DROP TABLE IF EXISTS card;
 CREATE TABLE IF NOT EXISTS card(
@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS card(
   active boolean comment '是否激活',
   uid int comment '客户ID'
 );
---ALTER TABLE card ADD COLUMN active boolean AFTER balance;
+-- ALTER TABLE card ADD COLUMN active boolean AFTER balance;

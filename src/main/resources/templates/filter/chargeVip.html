@@ -90,7 +90,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="vip : ${vips}">
+        <tr th:each="vip : ${vips}" onclick="shot(this)">
           <td th:text="${vip?.uid}"></td>
           <td th:text="${vip?.name}"></td>
           <td th:text="${vip?.tel}"></td>
@@ -110,6 +110,23 @@
         </tr>
         </tbody>
       </table>
+
+      <script type="text/javascript">
+// 点击行选中checkbox
+$("#Qub_tb_List").on("click", "tr", function () {
+  console.log("shot");
+  var input = $(this).find("input");
+  if ($(input).val() == "on") {
+    return;
+  }
+  $("#Qub_tb_List *").not(input).prop("checked", false);  //点击行，只能选择一行
+  if (!$(input).prop("checked")) {
+    $(input).prop("checked", true);
+  } else {
+    $(input).prop("checked", false);
+  }
+});
+      </script>
     </div>
   </form>
 </div>

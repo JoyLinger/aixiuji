@@ -25,6 +25,7 @@ spring:
   jpa:
     database: MySQL
     show-sql: true
+    format-sql: true
     generate-ddl: true
     hibernate:
       ddl-auto: update

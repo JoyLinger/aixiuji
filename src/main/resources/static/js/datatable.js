@@ -86,3 +86,19 @@ $(document).ready(function() {
     }
   });
 });
+// For showIncomes.html
+function reStatIncomes(){
+  $.ajax({
+    type: "GET",
+    url: "/filter/stats/incomeBase",
+    cache: false,  //禁用缓存
+    data: {"durPeriod": $("#durPeriod").val(), "durVal": $("#durVal").val()},
+    dataType: "json",
+    success: function (result) {
+//          console.log("result="+JSON.stringify(result));
+      //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+      //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+      callback(result);
+    }
+  });
+}

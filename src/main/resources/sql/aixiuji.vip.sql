@@ -1,4 +1,4 @@
---VIP贵宾信息表
+-- VIP贵宾信息表
 USE aixiuji;
 DROP TABLE IF EXISTS vip;
 CREATE TABLE IF NOT EXISTS vip(

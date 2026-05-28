@@ -37,7 +37,7 @@ public class SessionFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     //取出session里面的name属性,如果name为空, 就重定向到index界面
     String name = (String) servlet.getSession().getAttribute("name");
-    LOG.info("doFilter():name={}", name);
+    LOG.debug("doFilter():name={}", name);
     if (Objects.isNull(name) || "null".equalsIgnoreCase(name)) {
       response.sendRedirect("/loginHome");
       return;

@@ -1,14 +1,27 @@
 package com.jt.customer.entity;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.jt.customer.controller.BillController;
+import com.jt.customer.util.MyJson;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
+import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 账单表
  */
 @Entity
 public class Bill {
+  @Transient //当表中不存在实体类中的某个属性的时候,使用@Transient注解来忽略该属性
+  private final Class<Bill> clazz = Bill.class;
+  @Transient //当表中不存在实体类中的某个属性的时候,使用@Transient注解来忽略该属性
+  private final Logger LOG = LoggerFactory.getLogger(clazz);
   // 自增主键，无具体含义
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +44,68 @@ public class Bill {
   private Card card;
   // 备注
   private String note;
+
+  public static void main(String[] args) {
+    String jsonStr = "{'id':1688,'date':'2023-05-03 19:58:24','operation':消费,'role':老客户,'pay_method':微信,'pay_amount':20,'project':剪发,'note':'','card':'-','vip':'-','opas_update':'      <div class=\"nav-item dropdown\">\n" +
+            "        <a aria-expanded=\"false\" class=\"nav-link dropdown-toggle no-padding\" data-bs-toggle=\"dropdown\" href=\"#\"\n" +
+            "           id=\"dropdown01\">更多操作</a>\n" +
+            "        <ul aria-labelledby=\"dropdown01\" class=\"dropdown-menu\">\n" +
+            "          <li><a class=\"dropdown-item\" href=\"/filter/toUpdateBill?billId=1688\">修改账单信息</a></li>\n" +
+            "        </ul>\n" +
+            "      </div>'}";
+    JSONObject jsonObject = JSONObject.parseObject(jsonStr);
+    System.out.println("toJSONString = " + jsonObject.toJSONString());
+    System.out.println("0 = " + jsonObject.getString("recordsFiltered"));
+    System.out.println("1 = " + jsonObject.getString("data"));
+  }
+
+  /**
+   * Generate html label
+   * @return html label
+   */
+  public String html() {
+    return "      <div class=\"nav-item dropdown\">\n" +
+            "        <a aria-expanded=\"false\" class=\"nav-link dropdown-toggle no-padding\" data-bs-toggle=\"dropdown\" href=\"#\"\n" +
+            "           id=\"dropdown01\">更多操作</a>\n" +
+            "        <ul aria-labelledby=\"dropdown01\" class=\"dropdown-menu\">\n" +
+            "          <li><a class=\"dropdown-item\" href=\"/filter/toUpdateBill?billId="+id+"\">修改账单信息</a></li>\n" +
+            "        </ul>\n" +
+            "      </div>";
+  }
+
+  /**
+   * 获取session中的页面数据,并将id转为具体名称
+   * @param session HttpSession obj
+   * @param attr attr in contrast_key
+   * @param valueId value_id in contrast_value
+   * @return
+   */
+  public String getNameById(HttpSession session, String attr, int valueId){
+    List<ContrastValue> contrastValueList = (List<ContrastValue>) session.getAttribute(attr);
+    for(ContrastValue cv : contrastValueList){
+      if(cv.getValue_id() == valueId){
+        return cv.getName();
+      }
+    }
+    LOG.warn("HttpSession中未找到attr={},valueId={}",attr, valueId);
+    return "-";
+  }
+  public String toJson(HttpSession session){
+    return "{" +
+      "'id':" + id + "" +
+      ",'date':'" + date + "'" +
+      ",'operation':'" + getNameById(session, "operations", operation) + "'" +
+      ",'role':'" + getNameById(session, "roles", role) + "'" +
+      ",'pay_method':'" + getNameById(session, "payMethods", pay_method) + "'" +
+      ",'pay_amount':" + pay_amount + "" +
+      ",'project':'" + getNameById(session, "projects", project) + "'" +
+      ",'note':'" + (note == null ? "" : note) + "'" +
+            (card == null ?
+                    ",'card':'-','vip':'-'" :
+                    ",'card':'" + card.html() + "'" + ",'vip':'" + card.getVip().html() + "'") +
+//      ",'opas_update':'"+html()+"'" +
+      '}';
+  }
 
   public Bill() {
   }

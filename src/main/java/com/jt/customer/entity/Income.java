@@ -1,14 +1,20 @@
 package com.jt.customer.entity;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class Income {
   // 时间段:年/月
   public String period;
   // 收支
-  public long income;
+  public BigDecimal income;
   // 销量
-  public long sales;
+  public BigInteger sales;
 
-  public Income(String period, long income, long sales) {
+  public Income() {
+  }
+
+  public Income(String period, BigDecimal income, BigInteger sales) {
     this.period = period;
     this.income = income;
     this.sales = sales;
@@ -31,19 +37,19 @@ public class Income {
     this.period = period;
   }
 
-  public long getIncome() {
+  public BigDecimal getIncome() {
     return income;
   }
 
-  public void setIncome(int income) {
+  public void setIncome(BigDecimal income) {
     this.income = income;
   }
 
-  public long getSales() {
+  public BigInteger getSales() {
     return sales;
   }
 
-  public void setSales(int sales) {
+  public void setSales(BigInteger sales) {
     this.sales = sales;
   }
 }

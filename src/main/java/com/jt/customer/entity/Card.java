@@ -73,11 +73,19 @@ public class Card {
   }
 
   public String detail() {
-    return "余额:¥" + balance +
-            ",初始金额:¥" + amount +
-            ",开卡日期:" + date +
-            ",剩余赠送项目:" + bonuses2String()
+    return "余额：¥" + balance +
+            "，初始金额：¥" + amount +
+            "，开卡日期：" + date +
+            "，剩余赠送项目：" + bonuses2String()
             ;
+  }
+
+  /**
+   * Generate html label
+   * @return html label
+   */
+  public String html() {
+    return "<data title=\""+detail()+"\">"+parseType()+"</data>";
   }
 
   public String bonuses2String() {
@@ -86,7 +94,7 @@ public class Card {
       if (sb.length() == 0) {
         sb.append(b.show());
       } else {
-        sb.append(",").append(b.show());
+        sb.append("，").append(b.show());
       }
     }
     return "".equals(sb.toString()) ? "无" : sb.toString();
