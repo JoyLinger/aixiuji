@@ -57,6 +57,7 @@ function drawEChart(mySelect, type) {
 //根据数据生成chart option: 客户统计
 function json2option(jsonObj){
   var years = jsonObj.xAxis_data;
+  var durPeriod = jsonObj.durPeriod; // 获取统计周期：1=天，2=月，3=年
   
   // 处理每个series，添加formatter到合计series
   var allSeries = jsonObj.series.map(function(item) {
@@ -69,7 +70,17 @@ function json2option(jsonObj){
           fontSize: 14,
           fontWeight: 'bold',
           formatter: function(params) {
-            return years[params.dataIndex] + (item.name === '收入合计' ? '收入:' : '顾客:') + params.value;
+            // 按年统计：保持原来的格式
+            if(durPeriod === 3) {
+              return years[params.dataIndex] + (item.name === '收入合计' ? '收入:' : '顾客:') + params.value;
+            } else {
+              // 按日或按月统计：收入前面加￥，只显示数字
+              if(item.name === '收入合计') {
+                return '￥' + params.value;
+              } else {
+                return params.value;
+              }
+            }
           }
         },
         itemStyle: {
@@ -77,26 +88,56 @@ function json2option(jsonObj){
         }
       });
     } else {
-      // 其他月份series显示标签，不隐藏
-      return Object.assign({}, item, {
-        barGap: 0,
-        barCategoryGap: '20%',
-        barWidth: '40%',
-        label: {
-          show: true,
-          position: 'inside',
-          formatter: function(params) {
-            var monthName = item.name;
-            var value = params.value;
-            if (value > 0) {
-              return monthName + '：' + value;
-            } else {
-              return '';
+      // 判断是否是按年统计的月份数据（包含"月"），或者是按日/月的普通数据
+      var isMonthData = item.name.indexOf('月') !== -1;
+      
+      if(isMonthData) {
+        // 按年统计的月份数据
+        return Object.assign({}, item, {
+          barGap: 0,
+          barCategoryGap: '20%',
+          barWidth: '40%',
+          label: {
+            show: durPeriod === 3, // 只有按年统计才显示月份标签
+            position: 'inside',
+            formatter: function(params) {
+              var monthName = item.name;
+              var value = params.value;
+              if (value > 0) {
+                return monthName + '：' + value;
+              } else {
+                return '';
+              }
+            },
+            fontSize: 10
+          }
+        });
+      } else {
+        // 按日或按月统计的普通数据（收入或顾客人数）
+        return Object.assign({}, item, {
+          barGap: 0,
+          barCategoryGap: '20%',
+          barWidth: '40%',
+          label: {
+            show: true,
+            position: 'top',
+            fontSize: 12,
+            formatter: function(params) {
+              var value = params.value;
+              if (value > 0) {
+                // 收入前面加￥
+                if(item.name === '收入') {
+                  return '￥' + value;
+                } else {
+                  return value;
+                }
+              } else {
+                return '';
+              }
             }
-          },
-          fontSize: 10
-        }
-      });
+          }
+        });
+      }
     }
   });
   
@@ -111,31 +152,49 @@ function json2option(jsonObj){
         var year = years[params.dataIndex];
         var result = '';
         
-        // 如果悬停在合计series上，只显示合计
-        if(params.seriesName === '收入合计' || params.seriesName === '顾客合计') {
-          return year + '年<br/>' + params.seriesName.replace('合计', '') + ': ' + params.value;
-        }
-        
-        // 否则，先计算当前年份的合计
-        var yearIncomeTotal = 0;
-        var yearPopulationTotal = 0;
-        
-        for(var i = 0; i < jsonObj.series.length; i++) {
-          var series = jsonObj.series[i];
-          if(series.name.indexOf('收入') >= 0 && series.name !== '收入合计') {
-            yearIncomeTotal += (series.data[params.dataIndex] || 0);
+        if(durPeriod === 3) {
+          // 按年统计
+          if(params.seriesName === '收入合计' || params.seriesName === '顾客合计') {
+            return year + '年<br/>' + params.seriesName.replace('合计', '') + ': ' + params.value;
           }
-          if(series.name.indexOf('顾客') >= 0 && series.name !== '顾客合计') {
-            yearPopulationTotal += (series.data[params.dataIndex] || 0);
+          
+          var yearIncomeTotal = 0;
+          var yearPopulationTotal = 0;
+          
+          for(var i = 0; i < jsonObj.series.length; i++) {
+            var series = jsonObj.series[i];
+            if(series.name.indexOf('收入') >= 0 && series.name !== '收入合计') {
+              yearIncomeTotal += (series.data[params.dataIndex] || 0);
+            }
+            if(series.name.indexOf('顾客') >= 0 && series.name !== '顾客合计') {
+              yearPopulationTotal += (series.data[params.dataIndex] || 0);
+            }
           }
+          
+          result = year + '年<br/>';
+          result += params.seriesName + ': ' + params.value + '<br/>';
+          result += '---合计---<br/>';
+          result += '收入: ' + yearIncomeTotal + '<br/>';
+          result += '顾客人数: ' + yearPopulationTotal;
+        } else {
+          // 按日或按月统计
+          var totalIncome = 0;
+          var totalPopulation = 0;
+          
+          for(var i = 0; i < jsonObj.series.length; i++) {
+            var series = jsonObj.series[i];
+            if(series.name === '收入') {
+              totalIncome += (series.data[params.dataIndex] || 0);
+            }
+            if(series.name === '顾客人数') {
+              totalPopulation += (series.data[params.dataIndex] || 0);
+            }
+          }
+          
+          result = year + '<br/>';
+          result += '收入：￥' + totalIncome + '<br/>';
+          result += '人数：' + totalPopulation;
         }
-        
-        // 显示当前月份信息和合计
-        result = year + '年<br/>';
-        result += params.seriesName + ': ' + params.value + '<br/>';
-        result += '---合计---<br/>';
-        result += '收入: ' + yearIncomeTotal + '<br/>';
-        result += '顾客人数: ' + yearPopulationTotal;
         
         return result;
       }

@@ -343,6 +343,7 @@ public class StatController {
     
     EChartsOption eChartsOption = new EChartsOption(title, legends, xDataList, seriesList, yAxisList);
     eChartsOption.setTooltipStack(true);
+    eChartsOption.setDurPeriod(durPeriod);
     LOG.info("eChartsOption={}", eChartsOption);
     JSONObject jsonObj = JSONObject.parseObject(eChartsOption.toString());
     LOG.info("jsonObj={}", jsonObj);

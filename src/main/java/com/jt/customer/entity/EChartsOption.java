@@ -11,6 +11,7 @@ public class EChartsOption {
   private List<EChartsSeries> series;
   private List<ECharts_yAxis> yAxis_data;
   private boolean tooltipStack;
+  private Integer durPeriod;
 
   public EChartsOption(String title, List<String> legend, List<String> xAxis_data, List<EChartsSeries> series, List<ECharts_yAxis> yAxis_data) {
     this.title = title;
@@ -24,6 +25,14 @@ public class EChartsOption {
     this.tooltipStack = tooltipStack;
   }
 
+  public Integer getDurPeriod() {
+    return durPeriod;
+  }
+
+  public void setDurPeriod(Integer durPeriod) {
+    this.durPeriod = durPeriod;
+  }
+
   @Override
   public String toString() {
     String result = "{" +
@@ -34,6 +43,9 @@ public class EChartsOption {
             ", 'yAxis_data':" + yAxis_data;
     if(tooltipStack) {
       result += ", 'tooltip':{'stack':true}";
+    }
+    if(durPeriod != null) {
+      result += ", 'durPeriod':" + durPeriod;
     }
     result += '}';
     return result;
