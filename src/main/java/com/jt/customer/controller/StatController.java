@@ -490,12 +490,33 @@ public class StatController {
         }
       }
     }
+    // 正确处理排序：保存原始顺序，排序后重新排列series数据
+    List<String> originalXList = new ArrayList<>(xDataList);
     Collections.sort(xDataList);
+    
+    // 重新排列所有series的数据，使其与排序后的xDataList对应
+    Map<String, List<Integer>> newSeriesMap = new HashMap<>();
+    for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
+      List<Integer> newValues = new ArrayList<>();
+      List<Integer> oldValues = entry.getValue();
+      for (String xVal : xDataList) {
+        int originalIndex = originalXList.indexOf(xVal);
+        if (originalIndex >= 0 && originalIndex < oldValues.size()) {
+          newValues.add(oldValues.get(originalIndex));
+        } else {
+          newValues.add(0);
+        }
+      }
+      newSeriesMap.put(entry.getKey(), newValues);
+    }
+    seriesMap = newSeriesMap;
+    
     for (Map.Entry<String, List<Integer>> entry : seriesMap.entrySet()) {
       EChartsSeries series1 = new EChartsSeries(entry.getKey(), entry.getValue());
       seriesList.add(series1);
     }
     EChartsOption eChartsOption = new EChartsOption(title, legends, xDataList, seriesList, yAxisList);
+    eChartsOption.setDurPeriod(durPeriod);
     LOG.info("eChartsOption={}", eChartsOption);
     JSONObject jsonObj = JSONObject.parseObject(eChartsOption.toString());
     LOG.info("jsonObj={}", jsonObj);
